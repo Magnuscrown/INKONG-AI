@@ -114,6 +114,7 @@ header{
 
 /* ---------- Main ---------- */
 main{flex:1;overflow-y:auto;position:relative;-webkit-overflow-scrolling:touch;}
+
 #hook{
   min-height:100%;display:flex;align-items:center;justify-content:center;
   text-align:center;padding:40px 24px;
@@ -124,7 +125,40 @@ main{flex:1;overflow-y:auto;position:relative;-webkit-overflow-scrolling:touch;}
 }
 #hook span{display:block;margin-top:10px;font-size:12.5px;color:var(--sub);}
 
-#thread{display:none;flex-direction:column;gap:10px;padding:18px 14px 24px;}
+/* ---------- Mode view (Gemini-style, no inner input) ---------- */
+#mode-view{display:none;}
+#mode-view.active{display:flex;flex-direction:column;}
+#mode-view.active:not(.compact){min-height:100%;}
+.mode-top{
+  display:flex;align-items:center;gap:10px;padding:14px 16px;flex-wrap:wrap;flex:none;
+}
+#mode-view.compact .mode-top{padding:12px 16px 0;}
+.mode-center{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:20px 24px 60px;
+}
+#mode-view.compact .mode-center{display:none;}
+.mode-heading{
+  font-size:19px;line-height:1.5;color:var(--text);max-width:460px;margin:0 0 12px;
+  text-shadow:0 0 28px var(--glow);font-weight:600;
+}
+.mode-sub{font-size:13px;color:var(--sub);max-width:460px;line-height:1.6;margin:0;}
+
+.tool-back{
+  display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;
+  border:1px solid var(--border);background:var(--panel);color:var(--sub);
+  font-size:12.5px;cursor:pointer;font-family:inherit;flex:none;
+}
+.tool-back:hover{color:var(--text);border-color:var(--glow);}
+.mode-chip{
+  display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;
+  background:var(--panel);border:1px solid var(--border);
+  font-size:12.5px;color:var(--text);flex:none;
+}
+.mode-chip em{font-style:normal;color:var(--accent);}
+
+/* ---------- Thread ---------- */
+#thread{display:none;flex-direction:column;gap:10px;padding:12px 14px 24px;}
 #thread.active{display:flex;}
 .msg{max-width:82%;padding:10px 14px;border-radius:14px;font-size:14.5px;line-height:1.45;word-wrap:break-word;}
 .msg.user{align-self:flex-end;background:var(--accent);color:#0a0a0d;border-bottom-right-radius:4px;}
@@ -138,43 +172,6 @@ main{flex:1;overflow-y:auto;position:relative;-webkit-overflow-scrolling:touch;}
 #typing i:nth-child(2){animation-delay:.15s;}
 #typing i:nth-child(3){animation-delay:.3s;}
 @keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.5;}30%{transform:translateY(-4px);opacity:1;}}
-
-/* ---------- Workspace (tool dashboards) ---------- */
-#workspace{display:none;width:100%;max-width:760px;margin:0 auto;padding:22px 16px 40px;}
-#workspace.active{display:block;}
-.tool-top{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
-.tool-back{
-  display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;
-  border:1px solid var(--border);background:var(--panel);color:var(--sub);
-  font-size:12.5px;cursor:pointer;font-family:inherit;
-}
-.tool-back:hover{color:var(--text);border-color:var(--glow);}
-.tool-tag{font-size:12.5px;color:var(--sub);letter-spacing:.3px;}
-.tool-card{
-  background:var(--panel);border:1px solid var(--border);border-radius:16px;
-  padding:22px 20px;box-shadow:0 0 60px rgba(120,140,255,.07);
-}
-.tool-title{font-size:19px;font-weight:600;line-height:1.4;margin:0 0 10px;color:var(--text);}
-.tool-sub{font-size:13.5px;color:var(--sub);line-height:1.6;margin:0 0 18px;}
-.tool-field{
-  width:100%;border-radius:12px;border:1px solid var(--border);background:var(--panel-2);
-  color:var(--text);padding:12px 14px;font-size:14px;outline:none;
-  resize:vertical;font-family:inherit;line-height:1.5;
-}
-.tool-field:focus{border-color:var(--glow);}
-.tool-upload{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap;}
-.tool-file-name{font-size:12px;color:var(--sub);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;}
-.tool-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
-.tool-cta{
-  flex:1 1 200px;padding:13px;border-radius:12px;border:none;background:var(--text);
-  color:#050505;font-weight:600;font-size:14px;cursor:pointer;font-family:inherit;
-}
-.tool-cta:hover{background:#ffffff;}
-.tool-ghost{
-  flex:0 0 auto;padding:13px 16px;border-radius:12px;border:1px solid var(--border);
-  background:transparent;color:var(--sub);font-size:13px;cursor:pointer;font-family:inherit;
-}
-.tool-ghost:hover{color:var(--text);border-color:var(--glow);}
 
 /* ---------- Ad slot (fully hidden / transparent) ---------- */
 #inkong-ad-slot{
@@ -304,7 +301,7 @@ footer{
     </div>
   </div>
 
-  <div id="workspace"></div>
+  <div id="mode-view"></div>
 
   <div id="thread"></div>
 
@@ -431,14 +428,14 @@ var mainEl=$('main');
 var hookEl=$('hook');
 var hookText=$('hook-text');
 var threadEl=$('thread');
-var workspaceEl=$('workspace');
+var modeView=$('mode-view');
 var inputEl=$('input');
 var drawer=$('drawer');
 var scrim=$('scrim');
 var sheet=$('sheet');
 
 /* =========================================================
-   4. TYPING INDICATOR (lives inside #thread)
+   4. TYPING INDICATOR
    ========================================================= */
 var typingEl=document.createElement('div');
 typingEl.id='typing';
@@ -501,184 +498,156 @@ function persistMessage(role,text){
 }
 
 /* =========================================================
-   7. VIEW STATE CONTROLLER  (home | chat | tool)
-   ========================================================= */
-function showHome(){
-  activeTool=null;
-  workspaceEl.classList.remove('active');
-  workspaceEl.innerHTML='';
-  threadEl.classList.remove('active');
-  hookEl.style.display='flex';
-  renderHook();
-  mainEl.scrollTop=0;
-}
-
-function showThread(){
-  hookEl.style.display='none';
-  workspaceEl.classList.remove('active');
-  workspaceEl.innerHTML='';
-  threadEl.classList.add('active');
-}
-
-function openChat(id){
-  var c=chats.find(function(x){return x.id===id;});
-  if(!c) return;
-  activeId=id;
-  workspaceEl.classList.remove('active');
-  workspaceEl.innerHTML='';
-  threadEl.innerHTML='';
-  ensureTyping();
-  c.messages.forEach(function(m){addBubble(m.role,m.text,false);});
-  showThread();
-  closeDrawer();
-  scrollMain();
-}
-
-/* =========================================================
-   8. TOOL BLUEPRINTS + WORKSPACE RENDERER
+   7. TOOL BLUEPRINTS
    ========================================================= */
 var TOOLS={
   fact:{
     icon:'🔎',
     name:'Fact Checker & Video Transcriber',
     heading:'Paste social video link to run compliance & truth audit',
-    sub:'Drop a public TikTok, YouTube, X or Instagram link. INKONG transcribes the audio track and scores each claim for accuracy and compliance risk.',
-    field:'input',
-    placeholder:'https://...',
-    cta:'Run Truth Audit',
-    upload:false
+    sub:'Drop a public TikTok, YouTube, X or Instagram link into the bar below. INKONG transcribes the audio track and scores each claim for accuracy and compliance risk.',
+    placeholder:'Paste the video link...'
   },
   image:{
     icon:'🎨',
     name:'Image Generator',
     heading:'Enter descriptive text prompt to generate creative visual media assets',
-    sub:'Describe the subject, style, lighting and mood. The more specific the prompt, the sharper the generated asset.',
-    field:'textarea',
-    placeholder:'A cinematic portrait of...',
-    cta:'Generate Asset',
-    upload:false
+    sub:'Describe the subject, style, lighting and mood in the bar below. The more specific the prompt, the sharper the generated asset.',
+    placeholder:'Describe the image you want...'
   },
   detector:{
     icon:'🕵️',
     name:'AI Text & Image Detector',
     heading:'Drop text arrays or upload assets to identify deepfake anomalies',
-    sub:'Paste raw copy or attach a file. INKONG scans for synthetic patterns, manipulation markers and generator fingerprints.',
-    field:'textarea',
-    placeholder:'Paste the text array here...',
-    cta:'Scan For Anomalies',
-    upload:true
+    sub:'Paste raw copy into the bar below, or tap the 📷 / 🖼️ / 📁 buttons to attach an asset. INKONG scans for synthetic patterns and generator fingerprints.',
+    placeholder:'Paste text or attach an asset...'
   },
   learn:{
     icon:'📚',
     name:'Smart Learning Core',
     heading:'Enter a subject or syllabus block to generate study architectures',
-    sub:'Built for students and teachers. Produces structured study sheets, quiz sets and revision architectures from any topic.',
-    field:'textarea',
-    placeholder:'e.g. GCSE Biology — cell division...',
-    cta:'Build Study Sheet',
-    upload:false
+    sub:'Built for students and teachers. Type any topic into the bar below and INKONG builds structured study sheets, quiz sets and revision architectures.',
+    placeholder:'Enter a topic or syllabus block...'
   },
   summary:{
     icon:'⏱️',
     name:'Anti-Clickbait Video Summarizer',
     heading:'Paste a video link to extract the 2-sentence structural spoiler',
-    sub:'The speed engine. It analyzes the transcript and outputs a direct two-sentence spoiler with zero clickbait padding.',
-    field:'input',
-    placeholder:'https://...',
-    cta:'Summarize Instantly',
-    upload:false
+    sub:'The speed engine. Drop the link into the bar below and INKONG analyzes the transcript, then outputs a direct two-sentence spoiler with zero clickbait padding.',
+    placeholder:'Paste the video link...'
   }
 };
 
-function renderTool(id){
+/* =========================================================
+   8. MODE CONTROLLER (Gemini-style)
+   ========================================================= */
+function setPlaceholder(){
+  if(activeTool && TOOLS[activeTool]){
+    inputEl.placeholder=TOOLS[activeTool].placeholder;
+  }else{
+    inputEl.placeholder='Ask INKONG...';
+  }
+}
+
+function renderMode(id){
   var t=TOOLS[id];
   if(!t) return;
   activeTool=id;
 
   hookEl.style.display='none';
   threadEl.classList.remove('active');
+  threadEl.innerHTML='';
+  ensureTyping();
 
-  var fieldHTML = (t.field==='textarea')
-    ? '<textarea class="tool-field" id="tool-field" rows="6" placeholder="'+t.placeholder+'"></textarea>'
-    : '<input class="tool-field" id="tool-field" type="text" placeholder="'+t.placeholder+'">';
-
-  var uploadHTML = t.upload
-    ? '<div class="tool-upload">'+
-        '<button class="tool-ghost" id="tool-upload" type="button">📎 Attach asset</button>'+
-        '<span class="tool-file-name" id="tool-file-name">No asset attached</span>'+
-      '</div>'
-    : '';
-
-  workspaceEl.innerHTML =
-    '<div class="tool-top">'+
-      '<button class="tool-back" id="tool-back" type="button">← Back to Main</button>'+
-      '<span class="tool-tag">'+t.icon+' '+t.name+'</span>'+
+  modeView.innerHTML =
+    '<div class="mode-top">'+
+      '<button class="tool-back" id="mode-exit" type="button">← Back to Main</button>'+
+      '<span class="mode-chip"><em>'+t.icon+'</em> '+t.name+'</span>'+
     '</div>'+
-    '<div class="tool-card">'+
-      '<h2 class="tool-title">'+t.heading+'</h2>'+
-      '<p class="tool-sub">'+t.sub+'</p>'+
-      fieldHTML+
-      uploadHTML+
-      '<div class="tool-actions">'+
-        '<button class="tool-cta" id="tool-cta" type="button">'+t.cta+'</button>'+
-        '<button class="tool-ghost" id="tool-clear" type="button">Clear</button>'+
-      '</div>'+
+    '<div class="mode-center">'+
+      '<h2 class="mode-heading">'+t.heading+'</h2>'+
+      '<p class="mode-sub">'+t.sub+'</p>'+
     '</div>';
 
-  workspaceEl.classList.add('active');
+  modeView.classList.add('active');
+  modeView.classList.remove('compact');
+
+  modeView.querySelector('#mode-exit').onclick=function(){ resetToHome(); };
+
+  setPlaceholder();
   mainEl.scrollTop=0;
+  closeSheet();
+  setTimeout(function(){ inputEl.focus(); },50);
+}
 
-  var field=workspaceEl.querySelector('#tool-field');
+function collapseMode(){
+  if(activeTool) modeView.classList.add('compact');
+}
 
-  function submitTool(){
-    var v=field.value.trim();
-    if(!v){ field.focus(); return; }
-    closeSheet();
-    sendText(v);
-  }
+function clearMode(){
+  activeTool=null;
+  modeView.classList.remove('active','compact');
+  modeView.innerHTML='';
+  setPlaceholder();
+}
 
-  workspaceEl.querySelector('#tool-back').onclick=function(){ showHome(); };
-  workspaceEl.querySelector('#tool-cta').onclick=submitTool;
-  workspaceEl.querySelector('#tool-clear').onclick=function(){ field.value=''; field.focus(); };
-
-  field.addEventListener('keydown',function(e){
-    if(e.key==='Enter' && !e.shiftKey && t.field!=='textarea'){
-      e.preventDefault();
-      submitTool();
-    }
-  });
-
-  if(t.upload){
-    var upBtn=workspaceEl.querySelector('#tool-upload');
-    var nameEl=workspaceEl.querySelector('#tool-file-name');
-    upBtn.onclick=function(){
-      var fi=document.createElement('input');
-      fi.type='file';
-      fi.accept='image/*';
-      fi.onchange=function(){
-        if(fi.files && fi.files[0]){ nameEl.textContent=fi.files[0].name; }
-      };
-      fi.click();
-    };
-  }
+function resetToHome(){
+  activeId=null;
+  clearMode();
+  threadEl.innerHTML='';
+  ensureTyping();
+  threadEl.classList.remove('active');
+  hookEl.style.display='flex';
+  renderHook();
+  mainEl.scrollTop=0;
+  closeDrawer();
+  closeSheet();
 }
 
 /* =========================================================
-   9. SEND FLOW
+   9. OPEN SAVED CHAT
+   ========================================================= */
+function openChat(id){
+  var c=chats.find(function(x){return x.id===id;});
+  if(!c) return;
+  clearMode();
+  activeId=id;
+  threadEl.innerHTML='';
+  ensureTyping();
+  c.messages.forEach(function(m){addBubble(m.role,m.text,false);});
+  hookEl.style.display='none';
+  threadEl.classList.add('active');
+  closeDrawer();
+  scrollMain();
+}
+
+/* =========================================================
+   10. SEND FLOW (single bottom bar handles everything)
    ========================================================= */
 function sendText(rawText){
   var text=(rawText||'').trim();
   if(!text) return;
 
-  showThread();
+  hookEl.style.display='none';
+  threadEl.classList.add('active');
+  collapseMode();
   ensureTyping();
+
   addBubble('user',text);
   typingEl.classList.add('show');
   scrollMain();
 
+  var toolAtSend=activeTool;
+
   setTimeout(function(){
     typingEl.classList.remove('show');
-    addBubble('ai','This is a demo reply — connect a model API to make INKONG AI fully functional.');
+    var reply;
+    if(toolAtSend && TOOLS[toolAtSend]){
+      reply='[Demo] '+TOOLS[toolAtSend].name+' received your input. Connect the model API to return real results here.';
+    }else{
+      reply='This is a demo reply — connect a model API to make INKONG AI fully functional.';
+    }
+    addBubble('ai',reply);
     scrollMain();
   }, 900+Math.random()*700);
 }
@@ -692,7 +661,7 @@ function sendFromInput(){
 }
 
 /* =========================================================
-   10. INPUT BEHAVIOUR
+   11. INPUT BEHAVIOUR
    ========================================================= */
 inputEl.addEventListener('input',function(){
   inputEl.style.height='auto';
@@ -704,45 +673,35 @@ inputEl.addEventListener('keydown',function(e){
 $('send').onclick=sendFromInput;
 
 /* =========================================================
-   11. DRAWER (saved chats)
+   12. DRAWER
    ========================================================= */
 $('burger').onclick=function(){ drawer.classList.add('open'); scrim.classList.add('show'); };
 function closeDrawer(){ drawer.classList.remove('open'); scrim.classList.remove('show'); }
-
-$('new-chat').onclick=function(){
-  activeId=null;
-  threadEl.innerHTML='';
-  ensureTyping();
-  threadEl.classList.remove('active');
-  showHome();
-  closeDrawer();
-};
+$('new-chat').onclick=function(){ resetToHome(); };
 
 /* =========================================================
-   12. ACTION SHEET
+   13. ACTION SHEET
    ========================================================= */
 $('action-btn').onclick=function(){ sheet.classList.add('open'); scrim.classList.add('show'); };
 function closeSheet(){ sheet.classList.remove('open'); }
-
 scrim.onclick=function(){ closeDrawer(); closeSheet(); };
-
 $('more-toggle').onclick=function(){ $('more').classList.toggle('show'); };
 
-/* Media tray */
+/* Media tray — wire directly to inputs */
 $('cam').onclick=function(){ $('camera-picker').click(); };
 $('img').onclick=function(){ $('image-picker').click(); };
 $('file').onclick=function(){ $('file-picker').click(); };
 
-/* Tool launch buttons */
+/* Tool launch buttons → enter mode (no inner input, uses bottom bar) */
 Array.prototype.forEach.call(document.querySelectorAll('[data-tool]'),function(btn){
   btn.onclick=function(){
+    renderMode(btn.getAttribute('data-tool'));
     closeSheet();
-    renderTool(btn.getAttribute('data-tool'));
   };
 });
 
 /* =========================================================
-   13. VOICE INPUT
+   14. VOICE INPUT
    ========================================================= */
 var micBtn=$('mic-btn');
 var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
@@ -765,7 +724,7 @@ if(SR){
 }
 
 /* =========================================================
-   14. FOOTER MODALS
+   15. FOOTER MODALS
    ========================================================= */
 Array.prototype.forEach.call(document.querySelectorAll('.footer-link'),function(el){
   el.onclick=function(){
@@ -784,7 +743,7 @@ Array.prototype.forEach.call(document.querySelectorAll('.modal-overlay'),functio
 });
 
 /* =========================================================
-   15. GLOBAL ESCAPE
+   16. GLOBAL ESCAPE
    ========================================================= */
 document.addEventListener('keydown',function(e){
   if(e.key==='Escape'){
