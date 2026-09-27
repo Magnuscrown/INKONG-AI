@@ -4,7 +4,53 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>INKONG AI — Incognito Multi-Utility Hub</title>
-<meta name="description" content="INKONG AI: a private, no-account, browser-only AI utility hub.">
+<meta name="description" content="INKONG AI: a private, no-account, browser-only AI utility hub. Fact checking, image generation, deepfake detection, learning tools and video summarization — all stored only on your device.">
+<meta name="theme-color" content="#050505">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://inkong-ai.vercel.app/">
+<link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml">
+<meta property="og:type" content="website">
+<meta property="og:title" content="INKONG AI — Incognito Multi-Utility Hub">
+<meta property="og:description" content="No account. No servers. No tracking. A private multi-utility AI hub that lives entirely in your browser.">
+<meta property="og:url" content="https://inkong-ai.vercel.app/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="INKONG AI — Incognito Multi-Utility Hub">
+<meta name="twitter:description" content="No account. No servers. No tracking. Private multi-utility AI.">
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebApplication",
+  "name":"INKONG AI",
+  "applicationCategory":"UtilitiesApplication",
+  "operatingSystem":"Any",
+  "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
+  "description":"Private, browser-only multi-utility AI hub with zero account and zero server storage."
+}
+</script>
+<!--
+  ============================================================
+  SEO DEPLOYMENT TEMPLATES (Vercel) — drop these in /public
+  ============================================================
+  FILE: /public/robots.txt
+  ------------------------------------------------------------
+  User-agent: *
+  Allow: /
+  Disallow: /api/
+  Sitemap: https://inkong-ai.vercel.app/sitemap.xml
+
+  ------------------------------------------------------------
+  FILE: /public/sitemap.xml
+  ------------------------------------------------------------
+  <?xml version="1.0" encoding="UTF-8"?>
+  <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+      <loc>https://inkong-ai.vercel.app/</loc>
+      <changefreq>weekly</changefreq>
+      <priority>1.0</priority>
+    </url>
+  </urlset>
+  ============================================================
+-->
 <style>
 :root{
   --bg:#050505;
@@ -15,9 +61,6 @@
   --text:#f3f3f5;
   --sub:#9a9aa2;
   --accent:#8b93ff;
-  box-sizing:border-box;
-  padding-top:env(safe-area-inset-top,0px);
-  padding-bottom:env(safe-area-inset-bottom,0px);
 }
 *{box-sizing:border-box;}
 html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px);}
@@ -25,12 +68,13 @@ body{
   height:100%;margin:0;background:var(--bg);color:var(--text);
   font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,sans-serif;
   display:flex;flex-direction:column;overflow:hidden;
+  padding-top:env(safe-area-inset-top,0px);
 }
 
-/* Header */
+/* ---------- Header ---------- */
 header{
-  position:sticky;top:0;z-index:30;
-  padding:calc(14px + env(safe-area-inset-top,0px)) 16px 14px;
+  position:sticky;top:0;z-index:30;flex:none;
+  padding:14px 16px;
   display:flex;align-items:center;gap:14px;
   background:rgba(5,5,5,.85);backdrop-filter:blur(10px);
   border-bottom:1px solid var(--border);
@@ -44,12 +88,13 @@ header{
 .brand{font-size:17px;font-weight:600;letter-spacing:.2px;}
 .brand em{font-style:normal;color:var(--accent);}
 
-/* Drawer */
+/* ---------- Drawer ---------- */
 #drawer{
   position:fixed;top:0;bottom:0;left:0;width:50%;max-width:300px;
   background:var(--panel-2);border-right:1px solid var(--border);
   transform:translateX(-100%);transition:transform .28s ease;z-index:40;
   padding:calc(16px + env(safe-area-inset-top,0px)) 14px 16px;overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
 }
 #drawer.open{transform:translateX(0);}
 #drawer h3{font-size:13px;color:var(--sub);font-weight:500;margin:4px 0 12px;}
@@ -63,10 +108,11 @@ header{
   width:100%;padding:10px;border-radius:10px;border:1px dashed var(--border);
   background:transparent;color:var(--text);font-size:13.5px;margin-bottom:14px;cursor:pointer;
 }
+#new-chat:hover{border-color:var(--glow);}
 #scrim{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:35;opacity:0;pointer-events:none;transition:opacity .25s;}
 #scrim.show{opacity:1;pointer-events:auto;}
 
-/* Main */
+/* ---------- Main ---------- */
 main{flex:1;overflow-y:auto;position:relative;-webkit-overflow-scrolling:touch;}
 #hook{
   min-height:100%;display:flex;align-items:center;justify-content:center;
@@ -78,9 +124,9 @@ main{flex:1;overflow-y:auto;position:relative;-webkit-overflow-scrolling:touch;}
 }
 #hook span{display:block;margin-top:10px;font-size:12.5px;color:var(--sub);}
 
-#thread{display:none;flex-direction:column;gap:10px;padding:18px 14px 100px;}
+#thread{display:none;flex-direction:column;gap:10px;padding:18px 14px 24px;}
 #thread.active{display:flex;}
-.msg{max-width:82%;padding:10px 14px;border-radius:14px;font-size:14.5px;line-height:1.45;}
+.msg{max-width:82%;padding:10px 14px;border-radius:14px;font-size:14.5px;line-height:1.45;word-wrap:break-word;}
 .msg.user{align-self:flex-end;background:var(--accent);color:#0a0a0d;border-bottom-right-radius:4px;}
 .msg.ai{align-self:flex-start;background:var(--panel);border:1px solid var(--border);border-bottom-left-radius:4px;}
 #typing{
@@ -93,17 +139,55 @@ main{flex:1;overflow-y:auto;position:relative;-webkit-overflow-scrolling:touch;}
 #typing i:nth-child(3){animation-delay:.3s;}
 @keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.5;}30%{transform:translateY(-4px);opacity:1;}}
 
-.native-ad-deck{
-  width:100%;max-width:728px;height:90px;margin:0 auto;
-  display:flex;align-items:center;justify-content:center;
-  color:var(--sub);font-size:11px;border-top:1px solid var(--border);
-  background:var(--panel-2);
+/* ---------- Workspace (tool dashboards) ---------- */
+#workspace{display:none;width:100%;max-width:760px;margin:0 auto;padding:22px 16px 40px;}
+#workspace.active{display:block;}
+.tool-top{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
+.tool-back{
+  display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;
+  border:1px solid var(--border);background:var(--panel);color:var(--sub);
+  font-size:12.5px;cursor:pointer;font-family:inherit;
 }
-@media (max-width:600px){.native-ad-deck{height:50px;font-size:10px;}}
+.tool-back:hover{color:var(--text);border-color:var(--glow);}
+.tool-tag{font-size:12.5px;color:var(--sub);letter-spacing:.3px;}
+.tool-card{
+  background:var(--panel);border:1px solid var(--border);border-radius:16px;
+  padding:22px 20px;box-shadow:0 0 60px rgba(120,140,255,.07);
+}
+.tool-title{font-size:19px;font-weight:600;line-height:1.4;margin:0 0 10px;color:var(--text);}
+.tool-sub{font-size:13.5px;color:var(--sub);line-height:1.6;margin:0 0 18px;}
+.tool-field{
+  width:100%;border-radius:12px;border:1px solid var(--border);background:var(--panel-2);
+  color:var(--text);padding:12px 14px;font-size:14px;outline:none;
+  resize:vertical;font-family:inherit;line-height:1.5;
+}
+.tool-field:focus{border-color:var(--glow);}
+.tool-upload{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap;}
+.tool-file-name{font-size:12px;color:var(--sub);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;}
+.tool-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
+.tool-cta{
+  flex:1 1 200px;padding:13px;border-radius:12px;border:none;background:var(--text);
+  color:#050505;font-weight:600;font-size:14px;cursor:pointer;font-family:inherit;
+}
+.tool-cta:hover{background:#ffffff;}
+.tool-ghost{
+  flex:0 0 auto;padding:13px 16px;border-radius:12px;border:1px solid var(--border);
+  background:transparent;color:var(--sub);font-size:13px;cursor:pointer;font-family:inherit;
+}
+.tool-ghost:hover{color:var(--text);border-color:var(--glow);}
 
-/* Site footer (signature + copyright) */
+/* ---------- Ad slot (fully hidden / transparent) ---------- */
+#inkong-ad-slot{
+  flex:none;width:100%;background:transparent;border:none;
+  display:block;overflow:hidden;
+}
+@media (max-width:600px){
+  #inkong-ad-slot{min-height:50px !important;}
+}
+
+/* ---------- Site footer ---------- */
 .site-footer{
-  text-align:center;padding:26px 20px calc(96px + env(safe-area-inset-bottom,0px));
+  text-align:center;padding:26px 20px 40px;
   border-top:1px solid var(--border);
 }
 .founder-line{color:#ffffff;font-weight:600;font-size:14.5px;letter-spacing:.2px;margin:0 0 8px;}
@@ -112,7 +196,7 @@ main{flex:1;overflow-y:auto;position:relative;-webkit-overflow-scrolling:touch;}
 .footer-link{color:#777777;cursor:pointer;transition:color .15s;}
 .footer-link:hover{color:#ffffff;}
 
-/* Modals */
+/* ---------- Modals ---------- */
 .modal-overlay{
   position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:60;
   display:none;align-items:center;justify-content:center;padding:20px;
@@ -131,9 +215,9 @@ main{flex:1;overflow-y:auto;position:relative;-webkit-overflow-scrolling:touch;}
   font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;
 }
 
-/* Bottom deck */
+/* ---------- Bottom control deck ---------- */
 footer{
-  position:sticky;bottom:0;z-index:50;
+  position:sticky;bottom:0;z-index:50;flex:none;
   padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));
   background:rgba(5,5,5,.9);backdrop-filter:blur(10px);
   border-top:1px solid var(--border);
@@ -142,43 +226,60 @@ footer{
 .round-btn{
   width:42px;height:42px;border-radius:50%;border:1px solid var(--border);
   background:var(--panel);color:var(--text);display:flex;align-items:center;justify-content:center;
-  flex:none;cursor:pointer;font-size:17px;
+  flex:none;cursor:pointer;font-size:17px;font-family:inherit;
 }
-#action-btn{font-size:20px;letter-spacing:1px;padding-bottom:6px;}
+.round-btn:hover{border-color:var(--glow);}
+#action-btn{font-size:18px;}
+.h-dots{display:flex;align-items:center;justify-content:center;gap:3px;}
+.h-dots i{display:block;width:4px;height:4px;border-radius:50%;background:currentColor;}
 #input{
   flex:1;min-height:42px;max-height:120px;border-radius:22px;border:1px solid var(--border);
-  background:var(--panel);color:var(--text);padding:10px 16px;font-size:14.5px;resize:none;outline:none;
+  background:var(--panel);color:var(--text);padding:10px 16px;font-size:14.5px;
+  resize:none;outline:none;font-family:inherit;line-height:1.4;
 }
 #input:focus{border-color:var(--glow);}
 #send{
   width:42px;height:42px;border-radius:50%;border:none;background:var(--text);color:#050505;
   display:flex;align-items:center;justify-content:center;flex:none;cursor:pointer;font-size:16px;
 }
+#send:hover{background:#ffffff;}
 
-/* Action drawer (bottom sheet) */
+/* ---------- Action drawer (bottom sheet) ---------- */
 #sheet{
   position:fixed;left:0;right:0;bottom:0;z-index:45;
   background:var(--panel-2);border-top:1px solid var(--border);
-  border-radius:18px 18px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px));
-  transform:translateY(100%);transition:transform .28s ease;max-height:80vh;overflow-y:auto;
+  border-radius:18px 18px 0 0;
+  padding:14px 0 calc(14px + env(safe-area-inset-bottom,0px));
+  transform:translateY(100%);transition:transform .28s ease;
+  max-height:85vh;display:flex;flex-direction:column;
 }
 #sheet.open{transform:translateY(0);}
-.tray{display:flex;gap:10px;margin-bottom:16px;}
+.sheet-tray{display:flex;gap:10px;padding:0 16px;margin-bottom:16px;flex:none;}
 .tray-item{
   flex:1;padding:14px 8px;border-radius:12px;background:var(--panel);
   border:1px solid var(--border);text-align:center;cursor:pointer;
 }
+.tray-item:hover{border-color:var(--glow);}
 .tray-item div:first-child{font-size:20px;margin-bottom:6px;}
 .tray-item div:last-child{font-size:11.5px;color:var(--sub);}
+
+#sheet-body{
+  display:flex;flex-wrap:wrap;overflow-y:auto;max-height:280px;gap:10px;padding:16px;
+  align-content:flex-start;-webkit-overflow-scrolling:touch;
+}
 .stack-btn{
-  width:100%;text-align:left;padding:13px 14px;border-radius:12px;background:var(--panel);
-  border:1px solid var(--border);color:var(--text);font-size:14px;margin-bottom:8px;cursor:pointer;
-  display:flex;align-items:center;gap:10px;
+  flex:1 1 240px;text-align:left;padding:13px 14px;border-radius:12px;background:var(--panel);
+  border:1px solid var(--border);color:var(--text);font-size:14px;cursor:pointer;
+  display:flex;align-items:center;gap:10px;font-family:inherit;line-height:1.3;
 }
 .stack-btn:hover{border-color:var(--glow);}
-#more-toggle{color:var(--sub);font-size:13px;text-align:center;padding:8px;cursor:pointer;}
-#more{display:none;}
-#more.show{display:block;}
+#more-toggle{
+  flex:1 1 100%;color:var(--sub);font-size:13px;text-align:center;padding:8px;cursor:pointer;
+}
+#more-toggle:hover{color:var(--text);}
+#more{display:none;flex:1 1 100%;flex-wrap:wrap;gap:10px;}
+#more.show{display:flex;}
+#more .stack-btn{flex:1 1 240px;}
 </style>
 </head>
 <body>
@@ -195,13 +296,16 @@ footer{
   <div id="chat-list"></div>
 </aside>
 
-<main>
+<main id="main">
   <div id="hook">
     <div>
       <p id="hook-text"></p>
       <span>No account · No servers · Stored only in this browser</span>
     </div>
   </div>
+
+  <div id="workspace"></div>
+
   <div id="thread"></div>
 
   <div class="site-footer">
@@ -213,11 +317,14 @@ footer{
   </div>
 </main>
 
-<div class="native-ad-deck">Ad space — 728×90 / 320×50</div>
+<!-- Hidden, transparent ad container (728x90 desktop / 320x50 mobile) -->
+<div id="inkong-ad-slot" style="min-height: 90px; margin: 10px 0; width: 100%;"></div>
 
 <footer>
   <div id="bar">
-    <button class="round-btn" id="action-btn" aria-label="More">···</button>
+    <button class="round-btn" id="action-btn" aria-label="More options">
+      <span class="h-dots"><i></i><i></i><i></i></span>
+    </button>
     <textarea id="input" rows="1" placeholder="Ask INKONG..."></textarea>
     <button class="round-btn" id="mic-btn" aria-label="Voice input">🎙️</button>
     <button id="send" aria-label="Send">➔</button>
@@ -225,23 +332,27 @@ footer{
 </footer>
 
 <div id="sheet">
-  <div class="tray">
+  <div class="sheet-tray">
     <div class="tray-item" id="cam"><div>📷</div><div>Camera</div></div>
     <div class="tray-item" id="img"><div>🖼️</div><div>Image</div></div>
     <div class="tray-item" id="file"><div>📁</div><div>Files</div></div>
   </div>
-  <button class="stack-btn">🔎 Fact Checker & Video Transcriber</button>
-  <button class="stack-btn">🎨 Image Generator</button>
-  <button class="stack-btn">🕵️ AI Text & Image Detector</button>
-  <div id="more-toggle">+ More options</div>
-  <div id="more">
-    <button class="stack-btn">📚 Smart Learning Core</button>
-    <button class="stack-btn">⏱️ Anti-Clickbait Video Summarizer</button>
+  <div id="sheet-body">
+    <button class="stack-btn" data-tool="fact">🔎 Fact Checker &amp; Video Transcriber</button>
+    <button class="stack-btn" data-tool="image">🎨 Image Generator</button>
+    <button class="stack-btn" data-tool="detector">🕵️ AI Text &amp; Image Detector</button>
+    <div id="more-toggle">+ More options</div>
+    <div id="more">
+      <button class="stack-btn" data-tool="learn">📚 Smart Learning Core</button>
+      <button class="stack-btn" data-tool="summary">⏱️ Anti-Clickbait Video Summarizer</button>
+    </div>
   </div>
 </div>
 
-<input type="file" id="file-input" accept="image/*" style="display:none;">
-<input type="file" id="cam-input" accept="image/*" capture="environment" style="display:none;">
+<!-- Strict native photo-gallery picker -->
+<input type="file" id="image-picker" accept="image/*" style="display:none;">
+<input type="file" id="camera-picker" accept="image/*" capture="environment" style="display:none;">
+<input type="file" id="file-picker" style="display:none;">
 
 <div class="modal-overlay" id="modal-privacy">
   <div class="modal-box">
@@ -272,7 +383,13 @@ footer{
 </div>
 
 <script>
-const HOOKS=[
+(function(){
+'use strict';
+
+/* =========================================================
+   1. HOOK ARRAY (20 incognito value statements)
+   ========================================================= */
+var HOOKS=[
 "100% Secure & Incognito AI — No Account, No Personal Data Footprint.",
 "Zero Server Logs — Your Private Information Stays Inside Your Own Browser.",
 "Ultimate Free Multi-Utility Hub — No Paywalls, No Limits, Total Privacy.",
@@ -295,50 +412,79 @@ const HOOKS=[
 "The AI Hub That Forgets On Purpose — Unless You Ask It To Remember."
 ];
 
-// Storage
-const STORE_KEY='inkong_chats';
+/* =========================================================
+   2. LOCAL STORAGE LAYER
+   ========================================================= */
+var STORE_KEY='inkong_chats';
 function loadChats(){try{return JSON.parse(localStorage.getItem(STORE_KEY))||[];}catch(e){return [];}}
 function saveChats(c){try{localStorage.setItem(STORE_KEY,JSON.stringify(c));}catch(e){}}
-let chats=loadChats();
-let activeId=null;
 
+var chats=loadChats();
+var activeId=null;
+var activeTool=null;
+
+/* =========================================================
+   3. DOM REFS
+   ========================================================= */
+function $(id){return document.getElementById(id);}
+var mainEl=$('main');
+var hookEl=$('hook');
+var hookText=$('hook-text');
+var threadEl=$('thread');
+var workspaceEl=$('workspace');
+var inputEl=$('input');
+var drawer=$('drawer');
+var scrim=$('scrim');
+var sheet=$('sheet');
+
+/* =========================================================
+   4. TYPING INDICATOR (lives inside #thread)
+   ========================================================= */
+var typingEl=document.createElement('div');
+typingEl.id='typing';
+typingEl.innerHTML='<i></i><i></i><i></i>';
+
+function ensureTyping(){
+  if(typingEl.parentNode!==threadEl){threadEl.appendChild(typingEl);}
+}
+ensureTyping();
+
+function scrollMain(){
+  mainEl.scrollTop=mainEl.scrollHeight;
+}
+
+/* =========================================================
+   5. HOOK RENDER
+   ========================================================= */
 function renderHook(){
-  document.getElementById('hook-text').textContent = HOOKS[Math.floor(Math.random()*HOOKS.length)];
+  hookText.textContent=HOOKS[Math.floor(Math.random()*HOOKS.length)];
 }
 renderHook();
 
+/* =========================================================
+   6. CHAT LIST / BUBBLES / PERSISTENCE
+   ========================================================= */
 function renderChatList(){
-  const list=document.getElementById('chat-list');
+  var list=$('chat-list');
   list.innerHTML='';
-  chats.slice().reverse().forEach(c=>{
-    const d=document.createElement('div');
+  chats.slice().reverse().forEach(function(c){
+    var d=document.createElement('div');
     d.className='chat-card';
     d.textContent=c.title||'Untitled chat';
-    d.onclick=()=>openChat(c.id);
+    d.onclick=function(){openChat(c.id);};
     list.appendChild(d);
   });
 }
 renderChatList();
 
-function openChat(id){
-  const c=chats.find(x=>x.id===id);
-  if(!c) return;
-  activeId=id;
-  const thread=document.getElementById('thread');
-  thread.innerHTML='';
-  c.messages.forEach(m=>addBubble(m.role,m.text,false));
-  document.getElementById('hook').style.display='none';
-  thread.classList.add('active');
-  closeDrawer();
-}
-
-function addBubble(role,text,persist=true){
-  const thread=document.getElementById('thread');
-  const b=document.createElement('div');
+function addBubble(role,text,persist){
+  if(persist===undefined) persist=true;
+  ensureTyping();
+  var b=document.createElement('div');
   b.className='msg '+role;
   b.textContent=text;
-  thread.insertBefore(b, document.getElementById('typing'));
-  thread.scrollTop=thread.scrollHeight;
+  threadEl.insertBefore(b,typingEl);
+  scrollMain();
   if(persist) persistMessage(role,text);
 }
 
@@ -347,94 +493,310 @@ function persistMessage(role,text){
     activeId='c'+Date.now();
     chats.push({id:activeId,title:text.slice(0,40),messages:[]});
   }
-  const c=chats.find(x=>x.id===activeId);
-  c.messages.push({role,text});
+  var c=chats.find(function(x){return x.id===activeId;});
+  if(!c) return;
+  c.messages.push({role:role,text:text});
   saveChats(chats);
   renderChatList();
 }
 
-// typing indicator lives inside thread
-const typingEl=document.createElement('div');
-typingEl.id='typing';
-typingEl.innerHTML='<i></i><i></i><i></i>';
-document.getElementById('thread').appendChild(typingEl);
-
-document.getElementById('new-chat').onclick=()=>{
-  activeId=null;
-  document.getElementById('thread').innerHTML='';
-  document.getElementById('thread').appendChild(typingEl);
-  document.getElementById('thread').classList.remove('active');
-  document.getElementById('hook').style.display='flex';
+/* =========================================================
+   7. VIEW STATE CONTROLLER  (home | chat | tool)
+   ========================================================= */
+function showHome(){
+  activeTool=null;
+  workspaceEl.classList.remove('active');
+  workspaceEl.innerHTML='';
+  threadEl.classList.remove('active');
+  hookEl.style.display='flex';
   renderHook();
+  mainEl.scrollTop=0;
+}
+
+function showThread(){
+  hookEl.style.display='none';
+  workspaceEl.classList.remove('active');
+  workspaceEl.innerHTML='';
+  threadEl.classList.add('active');
+}
+
+function openChat(id){
+  var c=chats.find(function(x){return x.id===id;});
+  if(!c) return;
+  activeId=id;
+  workspaceEl.classList.remove('active');
+  workspaceEl.innerHTML='';
+  threadEl.innerHTML='';
+  ensureTyping();
+  c.messages.forEach(function(m){addBubble(m.role,m.text,false);});
+  showThread();
+  closeDrawer();
+  scrollMain();
+}
+
+/* =========================================================
+   8. TOOL BLUEPRINTS + WORKSPACE RENDERER
+   ========================================================= */
+var TOOLS={
+  fact:{
+    icon:'🔎',
+    name:'Fact Checker & Video Transcriber',
+    heading:'Paste social video link to run compliance & truth audit',
+    sub:'Drop a public TikTok, YouTube, X or Instagram link. INKONG transcribes the audio track and scores each claim for accuracy and compliance risk.',
+    field:'input',
+    placeholder:'https://...',
+    cta:'Run Truth Audit',
+    upload:false
+  },
+  image:{
+    icon:'🎨',
+    name:'Image Generator',
+    heading:'Enter descriptive text prompt to generate creative visual media assets',
+    sub:'Describe the subject, style, lighting and mood. The more specific the prompt, the sharper the generated asset.',
+    field:'textarea',
+    placeholder:'A cinematic portrait of...',
+    cta:'Generate Asset',
+    upload:false
+  },
+  detector:{
+    icon:'🕵️',
+    name:'AI Text & Image Detector',
+    heading:'Drop text arrays or upload assets to identify deepfake anomalies',
+    sub:'Paste raw copy or attach a file. INKONG scans for synthetic patterns, manipulation markers and generator fingerprints.',
+    field:'textarea',
+    placeholder:'Paste the text array here...',
+    cta:'Scan For Anomalies',
+    upload:true
+  },
+  learn:{
+    icon:'📚',
+    name:'Smart Learning Core',
+    heading:'Enter a subject or syllabus block to generate study architectures',
+    sub:'Built for students and teachers. Produces structured study sheets, quiz sets and revision architectures from any topic.',
+    field:'textarea',
+    placeholder:'e.g. GCSE Biology — cell division...',
+    cta:'Build Study Sheet',
+    upload:false
+  },
+  summary:{
+    icon:'⏱️',
+    name:'Anti-Clickbait Video Summarizer',
+    heading:'Paste a video link to extract the 2-sentence structural spoiler',
+    sub:'The speed engine. It analyzes the transcript and outputs a direct two-sentence spoiler with zero clickbait padding.',
+    field:'input',
+    placeholder:'https://...',
+    cta:'Summarize Instantly',
+    upload:false
+  }
+};
+
+function renderTool(id){
+  var t=TOOLS[id];
+  if(!t) return;
+  activeTool=id;
+
+  hookEl.style.display='none';
+  threadEl.classList.remove('active');
+
+  var fieldHTML = (t.field==='textarea')
+    ? '<textarea class="tool-field" id="tool-field" rows="6" placeholder="'+t.placeholder+'"></textarea>'
+    : '<input class="tool-field" id="tool-field" type="text" placeholder="'+t.placeholder+'">';
+
+  var uploadHTML = t.upload
+    ? '<div class="tool-upload">'+
+        '<button class="tool-ghost" id="tool-upload" type="button">📎 Attach asset</button>'+
+        '<span class="tool-file-name" id="tool-file-name">No asset attached</span>'+
+      '</div>'
+    : '';
+
+  workspaceEl.innerHTML =
+    '<div class="tool-top">'+
+      '<button class="tool-back" id="tool-back" type="button">← Back to Main</button>'+
+      '<span class="tool-tag">'+t.icon+' '+t.name+'</span>'+
+    '</div>'+
+    '<div class="tool-card">'+
+      '<h2 class="tool-title">'+t.heading+'</h2>'+
+      '<p class="tool-sub">'+t.sub+'</p>'+
+      fieldHTML+
+      uploadHTML+
+      '<div class="tool-actions">'+
+        '<button class="tool-cta" id="tool-cta" type="button">'+t.cta+'</button>'+
+        '<button class="tool-ghost" id="tool-clear" type="button">Clear</button>'+
+      '</div>'+
+    '</div>';
+
+  workspaceEl.classList.add('active');
+  mainEl.scrollTop=0;
+
+  var field=workspaceEl.querySelector('#tool-field');
+
+  function submitTool(){
+    var v=field.value.trim();
+    if(!v){ field.focus(); return; }
+    closeSheet();
+    sendText(v);
+  }
+
+  workspaceEl.querySelector('#tool-back').onclick=function(){ showHome(); };
+  workspaceEl.querySelector('#tool-cta').onclick=submitTool;
+  workspaceEl.querySelector('#tool-clear').onclick=function(){ field.value=''; field.focus(); };
+
+  field.addEventListener('keydown',function(e){
+    if(e.key==='Enter' && !e.shiftKey && t.field!=='textarea'){
+      e.preventDefault();
+      submitTool();
+    }
+  });
+
+  if(t.upload){
+    var upBtn=workspaceEl.querySelector('#tool-upload');
+    var nameEl=workspaceEl.querySelector('#tool-file-name');
+    upBtn.onclick=function(){
+      var fi=document.createElement('input');
+      fi.type='file';
+      fi.accept='image/*';
+      fi.onchange=function(){
+        if(fi.files && fi.files[0]){ nameEl.textContent=fi.files[0].name; }
+      };
+      fi.click();
+    };
+  }
+}
+
+/* =========================================================
+   9. SEND FLOW
+   ========================================================= */
+function sendText(rawText){
+  var text=(rawText||'').trim();
+  if(!text) return;
+
+  showThread();
+  ensureTyping();
+  addBubble('user',text);
+  typingEl.classList.add('show');
+  scrollMain();
+
+  setTimeout(function(){
+    typingEl.classList.remove('show');
+    addBubble('ai','This is a demo reply — connect a model API to make INKONG AI fully functional.');
+    scrollMain();
+  }, 900+Math.random()*700);
+}
+
+function sendFromInput(){
+  var text=inputEl.value.trim();
+  if(!text) return;
+  inputEl.value='';
+  inputEl.style.height='auto';
+  sendText(text);
+}
+
+/* =========================================================
+   10. INPUT BEHAVIOUR
+   ========================================================= */
+inputEl.addEventListener('input',function(){
+  inputEl.style.height='auto';
+  inputEl.style.height=Math.min(inputEl.scrollHeight,120)+'px';
+});
+inputEl.addEventListener('keydown',function(e){
+  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendFromInput(); }
+});
+$('send').onclick=sendFromInput;
+
+/* =========================================================
+   11. DRAWER (saved chats)
+   ========================================================= */
+$('burger').onclick=function(){ drawer.classList.add('open'); scrim.classList.add('show'); };
+function closeDrawer(){ drawer.classList.remove('open'); scrim.classList.remove('show'); }
+
+$('new-chat').onclick=function(){
+  activeId=null;
+  threadEl.innerHTML='';
+  ensureTyping();
+  threadEl.classList.remove('active');
+  showHome();
   closeDrawer();
 };
 
-// Drawer
-const drawer=document.getElementById('drawer'),scrim=document.getElementById('scrim');
-document.getElementById('burger').onclick=()=>{drawer.classList.add('open');scrim.classList.add('show');};
-function closeDrawer(){drawer.classList.remove('open');scrim.classList.remove('show');}
-scrim.onclick=()=>{closeDrawer();closeSheet();};
+/* =========================================================
+   12. ACTION SHEET
+   ========================================================= */
+$('action-btn').onclick=function(){ sheet.classList.add('open'); scrim.classList.add('show'); };
+function closeSheet(){ sheet.classList.remove('open'); }
 
-// Action sheet
-const sheet=document.getElementById('sheet');
-document.getElementById('action-btn').onclick=()=>{sheet.classList.add('open');scrim.classList.add('show');};
-function closeSheet(){sheet.classList.remove('open');}
-document.getElementById('more-toggle').onclick=()=>document.getElementById('more').classList.toggle('show');
-document.getElementById('cam').onclick=()=>document.getElementById('cam-input').click();
-document.getElementById('img').onclick=()=>document.getElementById('file-input').click();
-document.getElementById('file').onclick=()=>document.getElementById('file-input').click();
+scrim.onclick=function(){ closeDrawer(); closeSheet(); };
 
-// Send flow
-const input=document.getElementById('input');
-input.addEventListener('input',()=>{input.style.height='auto';input.style.height=Math.min(input.scrollHeight,120)+'px';});
+$('more-toggle').onclick=function(){ $('more').classList.toggle('show'); };
 
-function send(){
-  const text=input.value.trim();
-  if(!text) return;
-  document.getElementById('hook').style.display='none';
-  document.getElementById('thread').classList.add('active');
-  addBubble('user',text);
-  input.value='';input.style.height='auto';
-  typingEl.classList.add('show');
-  document.getElementById('thread').scrollTop=document.getElementById('thread').scrollHeight;
-  setTimeout(()=>{
-    typingEl.classList.remove('show');
-    addBubble('ai','This is a demo reply — connect a model API to make INKONG AI fully functional.');
-  }, 900+Math.random()*700);
-}
-document.getElementById('send').onclick=send;
-input.addEventListener('keydown',e=>{
-  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}
+/* Media tray */
+$('cam').onclick=function(){ $('camera-picker').click(); };
+$('img').onclick=function(){ $('image-picker').click(); };
+$('file').onclick=function(){ $('file-picker').click(); };
+
+/* Tool launch buttons */
+Array.prototype.forEach.call(document.querySelectorAll('[data-tool]'),function(btn){
+  btn.onclick=function(){
+    closeSheet();
+    renderTool(btn.getAttribute('data-tool'));
+  };
 });
 
-// Voice input
-const micBtn=document.getElementById('mic-btn');
-const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+/* =========================================================
+   13. VOICE INPUT
+   ========================================================= */
+var micBtn=$('mic-btn');
+var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 if(SR){
-  const rec=new SR();rec.continuous=false;rec.interimResults=false;
-  micBtn.onclick=()=>{try{rec.start();micBtn.style.color='var(--accent)';}catch(e){}};
-  rec.onresult=e=>{input.value+=(input.value?' ':'')+e.results[0][0].transcript;};
-  rec.onend=()=>{micBtn.style.color='';};
+  var rec=new SR();
+  rec.continuous=false;
+  rec.interimResults=false;
+  micBtn.onclick=function(){
+    try{ rec.start(); micBtn.style.color='var(--accent)'; }catch(e){}
+  };
+  rec.onresult=function(e){
+    inputEl.value+=(inputEl.value?' ':'')+e.results[0][0].transcript;
+    inputEl.style.height='auto';
+    inputEl.style.height=Math.min(inputEl.scrollHeight,120)+'px';
+  };
+  rec.onend=function(){ micBtn.style.color=''; };
+  rec.onerror=function(){ micBtn.style.color=''; };
 }else{
-  micBtn.onclick=()=>alert('Voice input isn\'t supported in this browser.');
+  micBtn.onclick=function(){ alert("Voice input isn't supported in this browser."); };
 }
 
-// Footer modals
-document.querySelectorAll('.footer-link').forEach(el=>{
-  el.onclick=()=>{
-    const m=document.getElementById('modal-'+el.dataset.modal);
+/* =========================================================
+   14. FOOTER MODALS
+   ========================================================= */
+Array.prototype.forEach.call(document.querySelectorAll('.footer-link'),function(el){
+  el.onclick=function(){
+    var m=$('modal-'+el.getAttribute('data-modal'));
     if(m) m.classList.add('open');
   };
 });
-document.querySelectorAll('.modal-close').forEach(btn=>{
-  btn.onclick=()=>{
-    const m=document.getElementById('modal-'+btn.dataset.close);
+Array.prototype.forEach.call(document.querySelectorAll('.modal-close'),function(btn){
+  btn.onclick=function(){
+    var m=$('modal-'+btn.getAttribute('data-close'));
     if(m) m.classList.remove('open');
   };
 });
-document.querySelectorAll('.modal-overlay').forEach(ov=>{
-  ov.addEventListener('click',e=>{ if(e.target===ov) ov.classList.remove('open'); });
+Array.prototype.forEach.call(document.querySelectorAll('.modal-overlay'),function(ov){
+  ov.addEventListener('click',function(e){ if(e.target===ov) ov.classList.remove('open'); });
 });
+
+/* =========================================================
+   15. GLOBAL ESCAPE
+   ========================================================= */
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    closeDrawer();
+    closeSheet();
+    Array.prototype.forEach.call(document.querySelectorAll('.modal-overlay.open'),function(m){
+      m.classList.remove('open');
+    });
+  }
+});
+
+})();
 </script>
 </body>
 </html>
