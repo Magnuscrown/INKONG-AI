@@ -4,11 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>INKONG AI — Incognito Multi-Utility Hub</title>
-<meta name="description" content="INKONG AI: a private, no-account, browser-only AI utility hub. Fact checking, image generation, deepfake detection, learning tools and video summarization — all stored only on your device.">
+<meta name="description" content="INKONG AI is a free, private, no-account AI utility hub that runs entirely in your browser. Fact-check videos, generate images, detect deepfakes, summarize long videos, and study smarter — all with zero servers, zero tracking, and zero data stored remotely.">
 <meta name="theme-color" content="#050505">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <link rel="canonical" href="https://inkong-ai.vercel.app/">
 <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%23050505'/%3E%3Ctext x='50' y='74' font-family='system-ui,-apple-system,sans-serif' font-size='72' font-weight='800' text-anchor='middle' fill='%238b93ff'%3EI%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%23050505'/%3E%3Ctext x='50' y='74' font-family='system-ui,-apple-system,sans-serif' font-size='72' font-weight='800' text-anchor='middle' fill='%238b93ff'%3EI%3C/text%3E%3C/svg%3E">
 <meta property="og:type" content="website">
 <meta property="og:title" content="INKONG AI — Incognito Multi-Utility Hub">
 <meta property="og:description" content="No account. No servers. No tracking. A private multi-utility AI hub that lives entirely in your browser.">
@@ -125,10 +127,9 @@ main{flex:1;overflow-y:auto;position:relative;-webkit-overflow-scrolling:touch;}
 }
 #hook span{display:block;margin-top:10px;font-size:12.5px;color:var(--sub);}
 
-/* ---------- Mode view (Gemini-style, no inner input) ---------- */
+/* ---------- Mode view (Gemini-style) ---------- */
 #mode-view{display:none;}
-#mode-view.active{display:flex;flex-direction:column;}
-#mode-view.active:not(.compact){min-height:100%;}
+#mode-view.active{display:flex;flex-direction:column;min-height:100%;}
 .mode-top{
   display:flex;align-items:center;gap:10px;padding:14px 16px;flex-wrap:wrap;flex:none;
 }
@@ -162,7 +163,7 @@ main{flex:1;overflow-y:auto;position:relative;-webkit-overflow-scrolling:touch;}
 #thread.active{display:flex;}
 .msg{max-width:82%;padding:10px 14px;border-radius:14px;font-size:14.5px;line-height:1.45;word-wrap:break-word;}
 .msg.user{align-self:flex-end;background:var(--accent);color:#0a0a0d;border-bottom-right-radius:4px;}
-.msg.ai{align-self:flex-start;background:var(--panel);border:1px solid var(--border);border-bottom-left-radius:4px;}
+.msg.ai{align-self:flex-start;background:var(--panel);border:1px solid var(--border);border-bottom-left-radius:4px;white-space:pre-wrap;}
 #typing{
   display:none;align-self:flex-start;padding:12px 14px;border-radius:14px;
   background:var(--panel);border:1px solid var(--border);gap:4px;
@@ -184,8 +185,18 @@ main{flex:1;overflow-y:auto;position:relative;-webkit-overflow-scrolling:touch;}
 
 /* ---------- Site footer ---------- */
 .site-footer{
-  text-align:center;padding:26px 20px 40px;
+  text-align:center;padding:32px 20px 40px;
   border-top:1px solid var(--border);
+}
+.about-block{
+  max-width:640px;margin:0 auto 26px;text-align:left;
+}
+.about-block h4{
+  font-size:14px;color:var(--text);font-weight:600;letter-spacing:.3px;
+  margin:0 0 10px;text-transform:uppercase;
+}
+.about-block p{
+  font-size:13px;color:var(--sub);line-height:1.75;margin:0 0 12px;
 }
 .founder-line{color:#ffffff;font-weight:600;font-size:14.5px;letter-spacing:.2px;margin:0 0 8px;}
 .copyright-row{color:#777777;font-size:12px;line-height:1.8;margin:0;}
@@ -200,12 +211,13 @@ main{flex:1;overflow-y:auto;position:relative;-webkit-overflow-scrolling:touch;}
 }
 .modal-overlay.open{display:flex;}
 .modal-box{
-  position:relative;width:100%;max-width:420px;max-height:80vh;overflow-y:auto;
+  position:relative;width:100%;max-width:460px;max-height:80vh;overflow-y:auto;
   background-color:#161616;border-radius:16px;border:1px solid #222222;
   padding:26px 22px 22px;
 }
-.modal-box h3{margin:0 0 12px;font-size:16px;color:var(--text);}
-.modal-box p{margin:0 0 10px;font-size:13.5px;line-height:1.6;color:var(--sub);}
+.modal-box h3{margin:0 0 14px;font-size:16px;color:var(--text);}
+.modal-box h4{margin:16px 0 6px;font-size:13.5px;color:var(--text);font-weight:600;}
+.modal-box p{margin:0 0 10px;font-size:13.5px;line-height:1.65;color:var(--sub);}
 .modal-close{
   position:absolute;top:12px;right:12px;width:30px;height:30px;border-radius:50%;
   border:1px solid var(--border);background:var(--panel);color:var(--text);
@@ -261,7 +273,7 @@ footer{
 .tray-item div:last-child{font-size:11.5px;color:var(--sub);}
 
 #sheet-body{
-  display:flex;flex-wrap:wrap;overflow-y:auto;max-height:280px;gap:10px;padding:16px;
+  display:flex;flex-wrap:wrap;overflow-y:auto;max-height:340px;gap:10px;padding:16px;
   align-content:flex-start;-webkit-overflow-scrolling:touch;
 }
 .stack-btn{
@@ -270,13 +282,6 @@ footer{
   display:flex;align-items:center;gap:10px;font-family:inherit;line-height:1.3;
 }
 .stack-btn:hover{border-color:var(--glow);}
-#more-toggle{
-  flex:1 1 100%;color:var(--sub);font-size:13px;text-align:center;padding:8px;cursor:pointer;
-}
-#more-toggle:hover{color:var(--text);}
-#more{display:none;flex:1 1 100%;flex-wrap:wrap;gap:10px;}
-#more.show{display:flex;}
-#more .stack-btn{flex:1 1 240px;}
 </style>
 </head>
 <body>
@@ -306,6 +311,12 @@ footer{
   <div id="thread"></div>
 
   <div class="site-footer">
+    <div class="about-block">
+      <h4>About INKONG AI</h4>
+      <p>INKONG AI is a private, browser-only multi-utility hub built for people who value what they type. Every tool — fact-checking, image generation, deepfake detection, long video summarization, and smart learning — runs entirely on your device with zero accounts, zero server logs, and zero tracking.</p>
+      <p>Nothing you write, paste, or upload ever leaves your browser unless you explicitly choose to send it. Your chat history lives only in your local storage, and closing the tab or clearing your browser data permanently deletes everything.</p>
+      <p>INKONG AI was built on a single principle: your data belongs to you, and privacy should be a fact of architecture — not a promise in a policy.</p>
+    </div>
     <p class="founder-line">Magnus Crown | Founder &amp; CEO</p>
     <p class="copyright-row">
       © 2026 INKONG AI. All rights reserved.<br>
@@ -338,11 +349,9 @@ footer{
     <button class="stack-btn" data-tool="fact">🔎 Fact Checker &amp; Video Transcriber</button>
     <button class="stack-btn" data-tool="image">🎨 Image Generator</button>
     <button class="stack-btn" data-tool="detector">🕵️ AI Text &amp; Image Detector</button>
-    <div id="more-toggle">+ More options</div>
-    <div id="more">
-      <button class="stack-btn" data-tool="learn">📚 Smart Learning Core</button>
-      <button class="stack-btn" data-tool="summary">⏱️ Anti-Clickbait Video Summarizer</button>
-    </div>
+    <button class="stack-btn" data-tool="longvideo">📝 Long Video Summarizer</button>
+    <button class="stack-btn" data-tool="learn">📚 Smart Learning Core</button>
+    <button class="stack-btn" data-tool="summary">⏱️ Anti-Clickbait Video Summarizer</button>
   </div>
 </div>
 
@@ -355,8 +364,11 @@ footer{
   <div class="modal-box">
     <button class="modal-close" data-close="privacy">×</button>
     <h3>Privacy Policy</h3>
-    <p>INKONG AI runs entirely in your browser. Chats, uploads, and settings are stored only in your device's local storage — nothing is transmitted to or kept on our servers.</p>
-    <p>We collect no account information because there is no account. Clearing your browser data or this tab's storage permanently deletes your history.</p>
+    <p>INKONG AI is built on a single principle: your data belongs to you. The entire application runs inside your web browser, which means we never receive, store, process, or transmit any information you enter — not your messages, not your prompts, not your uploads, and not your settings.</p>
+    <p>Your chat history, saved conversations, and preferences live exclusively in your device's local storage, and can be erased at any time by clearing your browser data or deleting the tab's storage.</p>
+    <p>We collect no account information because there is no account to create. We use no tracking pixels, no cookies, no analytics, and no third-party advertising identifiers. Nothing you type here is ever sold, shared, rented, or exposed to any external party.</p>
+    <p>If a feature ever requires an external API call (such as image generation), only the exact input you supply is sent — never your identity, device fingerprint, or browsing history.</p>
+    <p>By using INKONG AI, you accept that your data lives on your device alone. If you lose your device, clear your browser, or switch browsers, your data will not follow you — because we never had a copy to begin with. That is the trade: absolute privacy in exchange for zero cloud backup. We believe that's a fair deal, and we wouldn't have it any other way.</p>
   </div>
 </div>
 
@@ -365,17 +377,30 @@ footer{
     <button class="modal-close" data-close="terms">×</button>
     <h3>Terms &amp; Conditions</h3>
     <p>By using INKONG AI you agree to use the tools responsibly and not for unlawful, harmful, or abusive purposes.</p>
-    <p>The service is provided "as is" without warranties. Features may change as the product evolves.</p>
+    <p>The service is provided "as is" without warranties of any kind. Features may change, evolve, or be removed as the product develops.</p>
+    <p>Because INKONG AI runs entirely in your browser and stores nothing on remote servers, you are solely responsible for your own data. Clearing your browser storage is permanent and cannot be reversed.</p>
   </div>
 </div>
 
 <div class="modal-overlay" id="modal-faq">
   <div class="modal-box">
     <button class="modal-close" data-close="faq">×</button>
-    <h3>FAQ</h3>
-    <p><strong>Do I need an account?</strong> No — everything runs on your device.</p>
-    <p><strong>Is it really free?</strong> Yes, all tools are free to use.</p>
-    <p><strong>Where is my data stored?</strong> Only in this browser's local storage.</p>
+    <h3>Frequently Asked Questions</h3>
+
+    <h4>1. Do I need an account to use INKONG AI?</h4>
+    <p>No. INKONG AI has no sign-up, no login, and no user profile. Everything runs directly in your browser the moment you open the page.</p>
+
+    <h4>2. Is INKONG AI really free?</h4>
+    <p>Yes — every tool is 100% free, with no paywalls, no trial limits, and no hidden premium tiers. Fact-checking, image generation, deepfake detection, long video summarization, and smart learning are all open to everyone.</p>
+
+    <h4>3. Where is my data stored?</h4>
+    <p>Only inside your own browser's local storage. Your chats, prompts, and settings never touch our servers because there are no servers involved. Clearing your browser data or the tab's storage permanently deletes your history.</p>
+
+    <h4>4. Do you have a mobile app?</h4>
+    <p>Not yet — but a native mobile application is in active development and will be released in the future. For now, INKONG AI works beautifully on any modern mobile browser as a Progressive Web App you can install straight to your home screen.</p>
+
+    <h4>5. Can INKONG AI see what I type or paste?</h4>
+    <p>No. Your words, links, and uploads stay inside your device unless you explicitly choose to send them to a model API. We collect no analytics, no fingerprints, and no personal identifiers.</p>
   </div>
 </div>
 
@@ -522,11 +547,18 @@ var TOOLS={
     sub:'Paste raw copy into the bar below, or tap the 📷 / 🖼️ / 📁 buttons to attach an asset. INKONG scans for synthetic patterns and generator fingerprints.',
     placeholder:'Paste text or attach an asset...'
   },
+  longvideo:{
+    icon:'📝',
+    name:'Long Video Summarizer',
+    heading:'Paste a long video link to extract the key points',
+    sub:'TikTok, YouTube, Instagram, X — drop any long video link into the bar below. INKONG transcribes the audio and returns a clean bullet-point breakdown of everything the speaker covers, so you get the full content without watching for hours.',
+    placeholder:'Paste the long video link...'
+  },
   learn:{
     icon:'📚',
     name:'Smart Learning Core',
-    heading:'Enter a subject or syllabus block to generate study architectures',
-    sub:'Built for students and teachers. Type any topic into the bar below and INKONG builds structured study sheets, quiz sets and revision architectures.',
+    heading:'Enter a subject or syllabus block to learn, study and revise',
+    sub:'Built for students and teachers. Type any topic into the bar below and INKONG builds structured study sheets, revision notes and quiz sets to help you learn faster.',
     placeholder:'Enter a topic or syllabus block...'
   },
   summary:{
@@ -539,7 +571,7 @@ var TOOLS={
 };
 
 /* =========================================================
-   8. MODE CONTROLLER (Gemini-style)
+   8. MODE CONTROLLER
    ========================================================= */
 function setPlaceholder(){
   if(activeTool && TOOLS[activeTool]){
@@ -622,7 +654,7 @@ function openChat(id){
 }
 
 /* =========================================================
-   10. SEND FLOW (single bottom bar handles everything)
+   10. SEND FLOW
    ========================================================= */
 function sendText(rawText){
   var text=(rawText||'').trim();
@@ -685,14 +717,11 @@ $('new-chat').onclick=function(){ resetToHome(); };
 $('action-btn').onclick=function(){ sheet.classList.add('open'); scrim.classList.add('show'); };
 function closeSheet(){ sheet.classList.remove('open'); }
 scrim.onclick=function(){ closeDrawer(); closeSheet(); };
-$('more-toggle').onclick=function(){ $('more').classList.toggle('show'); };
 
-/* Media tray — wire directly to inputs */
 $('cam').onclick=function(){ $('camera-picker').click(); };
 $('img').onclick=function(){ $('image-picker').click(); };
 $('file').onclick=function(){ $('file-picker').click(); };
 
-/* Tool launch buttons → enter mode (no inner input, uses bottom bar) */
 Array.prototype.forEach.call(document.querySelectorAll('[data-tool]'),function(btn){
   btn.onclick=function(){
     renderMode(btn.getAttribute('data-tool'));
