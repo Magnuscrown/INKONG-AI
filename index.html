@@ -220,6 +220,7 @@ footer{
 }
 .round-btn:hover{border-color:var(--glow);}
 #action-btn{font-size:18px;}
+#action-btn svg{display:block;color:var(--text);}
 
 /* Input wrap — holds attachment chip + textarea */
 #input-wrap{
@@ -359,8 +360,12 @@ footer{
 
 <footer>
   <div id="bar">
-    <button class="round-btn" id="action-btn" aria-label="More options">
-      <span class="h-dots"><i></i><i></i><i></i></span>
+        <button class="round-btn" id="action-btn" aria-label="More options">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <circle cx="3.5" cy="10" r="1.9"/>
+        <circle cx="10" cy="10" r="1.9"/>
+        <circle cx="16.5" cy="10" r="1.9"/>
+      </svg>
     </button>
     <div id="input-wrap">
       <div id="attach-chip" class="hidden">
