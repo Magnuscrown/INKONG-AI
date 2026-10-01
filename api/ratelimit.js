@@ -1,30 +1,35 @@
 // /api/ratelimit.js
-// In-memory rate limiter with hashed IPs.
-// NOTE: Vercel serverless functions have ephemeral memory — for production
-// at scale, swap this for Vercel KV or Upstash Redis. For launch, this works.
+// In-memory rate limiter with hashed IPs (CommonJS).
 
-import crypto from 'crypto';
+const crypto = require('crypto');
 
-// In-memory store: { hash: { count, firstAt } }
-// Resets per function instance. Good enough for small-scale launch.
 const store = new Map();
-
 const DAILY_LIMIT = 100;
-const WINDOW_MS = 24 * 60 * 60 * 1000; // 24 hours
+const WINDOW_MS = 24 * 60 * 60 * 1000;
 
-export function hashIp(ip) {
-  // Irreversible hash — we can't recover the original IP.
+function hashIp(ip) {
   const salt = process.env.IP_SALT || 'inkong-default-salt-change-me';
   return crypto.createHash('sha256').update(salt + '::' + ip).digest('hex').slice(0, 32);
 }
 
-export function getClientIp(req) {
+function getClientIp(req) {
   const fwd = req.headers['x-forwarded-for'];
   if (fwd) return fwd.split(',')[0].trim();
-  return req.socket?.remoteAddress || 'unknown';
+  return (req.socket && req.socket.remoteAddress) || 'unknown';
 }
 
-export function checkRateLimit(ipHash) {
+function formatDuration(ms) {
+  const totalSeconds = Math.ceil(ms / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  if (hours > 0) return hours + ' hour' + (hours === 1 ? '' : 's') + ' and ' + minutes + ' minute' + (minutes === 1 ? '' : 's');
+  if (minutes > 0) return minutes + ' minute' + (minutes === 1 ? '' : 's');
+  return seconds + ' second' + (seconds === 1 ? '' : 's');
+}
+
+function checkRateLimit(ipHash) {
   const now = Date.now();
   const entry = store.get(ipHash);
 
@@ -39,7 +44,7 @@ export function checkRateLimit(ipHash) {
     return {
       allowed: false,
       remaining: 0,
-      msLeft,
+      msLeft: msLeft,
       resetsIn: formatDuration(msLeft)
     };
   }
@@ -48,13 +53,8 @@ export function checkRateLimit(ipHash) {
   return { allowed: true, remaining: DAILY_LIMIT - entry.count };
 }
 
-function formatDuration(ms) {
-  const totalSeconds = Math.ceil(ms / 1000);
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-
-  if (hours > 0) return hours + ' hour' + (hours === 1 ? '' : 's') + ' and ' + minutes + ' minute' + (minutes === 1 ? '' : 's');
-  if (minutes > 0) return minutes + ' minute' + (minutes === 1 ? '' : 's');
-  return seconds + ' second' + (seconds === 1 ? '' : 's');
-}
+module.exports = {
+  hashIp: hashIp,
+  getClientIp: getClientIp,
+  checkRateLimit: checkRateLimit
+};
