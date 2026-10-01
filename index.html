@@ -765,19 +765,53 @@ function sendText(rawText, attachment){
   typingEl.classList.add('show');
   scrollMain();
 
-  var toolAtSend=activeTool;
+  // Build the message sent to the API
+  var messageForAI=text;
+  if(activeTool && TOOLS[activeTool]){
+    messageForAI='[Tool: '+TOOLS[activeTool].name+']\n\n'+text;
+  }
 
-  setTimeout(function(){
+  fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: messageForAI })
+  })
+  .then(function(response){
+    return response.json().then(function(data){
+      return { status: response.status, data: data };
+    });
+  })
+  .then(function(result){
     typingEl.classList.remove('show');
-    var reply;
-    if(toolAtSend && TOOLS[toolAtSend]){
-      reply='[Demo] '+TOOLS[toolAtSend].name+' received your input. Connect the model API to return real results here.';
-    }else{
-      reply='This is a demo reply — connect a model API to make INKONG AI fully functional.';
+
+    if(result.status === 429){
+      // Rate limit reached
+      var msg = result.data.message || "You've reached today's free chat limit. Please try again later.";
+      addBubble('ai', msg);
+      scrollMain();
+      return;
     }
-    addBubble('ai',reply);
+
+    if(result.status === 503){
+      addBubble('ai', "INKONG AI is at capacity right now. Please try again in a few minutes.");
+      scrollMain();
+      return;
+    }
+
+    if(result.status !== 200 || !result.data.reply){
+      addBubble('ai', "Something went wrong. Please try again.");
+      scrollMain();
+      return;
+    }
+
+    addBubble('ai', result.data.reply);
     scrollMain();
-  }, 900+Math.random()*700);
+  })
+  .catch(function(err){
+    typingEl.classList.remove('show');
+    addBubble('ai', "Connection error. Please check your internet and try again.");
+    scrollMain();
+  });
 }
 
 function sendFromInput(){
