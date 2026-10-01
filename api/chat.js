@@ -122,7 +122,7 @@ async function callGemini(messages) {
   const systemMsg = messages.find(function(m){ return m.role === 'system'; });
   const systemText = systemMsg ? systemMsg.content : '';
 
-  const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + key;
+  const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=' + key;
 
   const body = {
     contents: contents,
@@ -161,7 +161,7 @@ async function callOpenRouter(messages) {
       'X-Title': 'INKONG AI'
     },
     body: JSON.stringify({
-      model: 'meta-llama/llama-3.3-70b-instruct:free',
+      model: 'nvidia/nemotron-3-super-120b-a12b:free',
       messages: messages,
       temperature: 0.7,
       max_tokens: 1024
