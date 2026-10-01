@@ -109,11 +109,12 @@ async function callGroq(messages) {
     })
   });
 
-  if (!res.ok) throw new Error('Groq ' + res.status);
-  const data = await res.json();
-  return data.choices?.[0]?.message?.content || '';
+ if (!res.ok) {
+  const errText = await res.text();
+  console.error('GROQ ERROR:', res.status, errText);
+  throw new Error('Groq ' + res.status);
 }
-
+  
 // ---------- Provider 2: Gemini ----------
 async function callGemini(messages) {
   const key = process.env.GEMINI_API_KEY;
@@ -143,9 +144,10 @@ async function callGemini(messages) {
     body: JSON.stringify(body)
   });
 
-  if (!res.ok) throw new Error('Gemini ' + res.status);
-  const data = await res.json();
-  return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  if (!res.ok) {
+  const errText = await res.text();
+  console.error('GEMINI ERROR:', res.status, errText);
+  throw new Error('Gemini ' + res.status);
 }
 
 // ---------- Provider 3: OpenRouter ----------
@@ -169,9 +171,10 @@ async function callOpenRouter(messages) {
     })
   });
 
-  if (!res.ok) throw new Error('OpenRouter ' + res.status);
-  const data = await res.json();
-  return data.choices?.[0]?.message?.content || '';
+  if (!res.ok) {
+  const errText = await res.text();
+  console.error('OPENROUTER ERROR:', res.status, errText);
+  throw new Error('OpenRouter ' + res.status);
 }
 
 // ---------- Main handler ----------
@@ -222,7 +225,7 @@ export default async function handler(req, res) {
     { name: 'openrouter', fn: callOpenRouter }
   ];
 
-  for (const provider of providers) {
+    for (const provider of providers) {
     try {
       const reply = await provider.fn(messages);
       if (reply && reply.trim().length > 0) {
@@ -232,10 +235,16 @@ export default async function handler(req, res) {
         });
       }
     } catch (err) {
-      // Silent failover — no logging
+      // Log to Vercel server logs — ONLY you can see these
+      console.error('[' + provider.name + '] failed:', err.message);
       continue;
     }
   }
+
+  return res.status(503).json({
+    error: 'all_providers_failed',
+    message: "INKONG AI is at capacity right now. Please try again in a few minutes."
+  });
 
   // All providers failed
   return res.status(503).json({
