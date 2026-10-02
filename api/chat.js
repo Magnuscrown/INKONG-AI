@@ -1,6 +1,6 @@
 // /api/chat.js
 // INKONG AI — 3-provider failover gateway (CommonJS).
-// Chain: Gemini → Groq → OpenRouter
+// Chain: Groq → Gemini → OpenRouter
 
 const { checkRateLimit, hashIp, getClientIp } = require('./ratelimit.js');
 
@@ -116,7 +116,7 @@ async function callGroq(messages) {
       'Authorization': 'Bearer ' + key
     },
     body: JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
+      model: 'llama-3.1-8b-instant',
       messages: messages,
       temperature: 0.7,
       max_tokens: 1024
@@ -132,8 +132,8 @@ async function callGroq(messages) {
   return (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '';
 }
 
-// ---------- Provider 2: Gemini ----------
-async function callGemini(messages) {
+// ---------- Provider 2: Groq ----------
+async function callGroq(messages) {
   const key = process.env.GEMINI_API_KEY;
   if (!key) throw new Error('GEMINI_API_KEY not set');
 
@@ -242,11 +242,11 @@ module.exports = async function handler(req, res) {
     { role: 'user', content: userMessage }
   ];
 
-  const providers = [
-  { name: 'gemini', fn: callGemini },
-  { name: 'groq', fn: callGroq },
-  { name: 'openrouter', fn: callOpenRouter }
-];
+    const providers = [
+    { name: 'groq', fn: callGroq },
+    { name: 'gemini', fn: callGemini },
+    { name: 'openrouter', fn: callOpenRouter }
+  ];
   
   for (let i = 0; i < providers.length; i++) {
     const provider = providers[i];
