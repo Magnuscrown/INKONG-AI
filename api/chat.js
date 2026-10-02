@@ -1,6 +1,6 @@
 // /api/chat.js
 // INKONG AI — 3-provider failover gateway (CommonJS).
-// Chain: Groq → Gemini → OpenRouter
+// Chain: Gemini → Groq → OpenRouter
 
 const { checkRateLimit, hashIp, getClientIp } = require('./ratelimit.js');
 
@@ -243,11 +243,11 @@ module.exports = async function handler(req, res) {
   ];
 
   const providers = [
-    { name: 'groq', fn: callGroq },
-    { name: 'gemini', fn: callGemini },
-    { name: 'openrouter', fn: callOpenRouter }
-  ];
-
+  { name: 'gemini', fn: callGemini },
+  { name: 'groq', fn: callGroq },
+  { name: 'openrouter', fn: callOpenRouter }
+];
+  
   for (let i = 0; i < providers.length; i++) {
     const provider = providers[i];
     try {
