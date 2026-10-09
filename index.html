@@ -142,7 +142,7 @@ nav button{transition:transform .22s ease,color .22s,text-shadow .22s}nav button
 <div id="gate"><div class="gin">
 <div class="logo3d" id="logo3d" aria-label="INKONG AI"></div>
 <p class="gtxt" id="gdis">INKONG AI runs on your own device. We don't save your data on our servers: your chats and saves stay in this browser. Ads from partner networks may use cookies. By entering you accept the <span class="lnk" data-m="Terms">Terms</span> and <span class="lnk" data-m="Privacy">Privacy Policy</span>.</p>
-<button class="bigbtn" id="enter">ENTER</button>
+<button class="bigbtn" id="enter">ENTER APPLICATION</button>
 <div id="gdl"><p class="gtxt" id="gdt"></p><div id="gbtns"><button class="bigbtn" id="gok">APPROVE</button><button class="mini" id="gno">CANCEL</button></div><div id="gbar"><i id="gpb"></i></div></div>
 </div></div>
 <div id="modal"><div id="mb"></div></div><div id="toast"></div>
@@ -197,25 +197,28 @@ var sb=$('sb');
 ['fact','sum','trans','det'].forEach(function(k){var b=h('button','stack',TOOLS[k].i+' '+TOOLS[k].n);b.onclick=function(){go('qa',k)};sb.appendChild(b)});
 
 /* ---------- AI tab ---------- */
-/* TIERS (by device memory):
-   0 = very old device -> user's own free Gemini key
-   1 = low-end  2-3 GB  -> SmolLM2-135M  (WebAssembly, ~135 MB)
-   2 = mid-range 4-5 GB -> Qwen2.5-0.5B  (WebAssembly, ~400 MB)
-   3 = high-end 6 GB+   -> Llama-3.2-1B  (WebGPU, ~1 GB) */
+/* TIERS:
+   0 = cannot run local AI -> user's own free Gemini key
+   1 = CPU phones/laptops  -> SmolLM2-135M (WebAssembly, ~140 MB)  works everywhere
+   2 = has WebGPU, 4 GB+   -> Qwen2.5-0.5B (WebGPU, ~400 MB)
+   3 = has WebGPU, 6 GB+   -> Llama-3.2-1B (WebGPU, ~1 GB)
+   If a bigger model fails to start, we drop to the next smaller one. */
 var MODELS={
- 1:{id:'onnx-community/SmolLM2-135M-Instruct',dtype:'q8',device:'wasm',size:'about 135 MB',tok:300},
- 2:{id:'onnx-community/Qwen2.5-0.5B-Instruct',dtype:'q4',device:'wasm',size:'about 400 MB',tok:400},
- 3:{id:'onnx-community/Llama-3.2-1B-Instruct',dtype:'q4f16',device:'webgpu',size:'about 1 GB',tok:600}
+ 1:{id:'onnx-community/SmolLM2-135M-Instruct',dtype:'q8',device:'wasm',size:'about 140 MB',tok:200},
+ 2:{id:'onnx-community/Qwen2.5-0.5B-Instruct',dtype:'q4',device:'webgpu',size:'about 400 MB',tok:350},
+ 3:{id:'onnx-community/Llama-3.2-1B-Instruct',dtype:'q4f16',device:'webgpu',size:'about 1 GB',tok:500}
 };
-var LIMITS={0:60000,1:2500,2:4000,3:12000};
+var LIMITS={0:60000,1:1500,2:3000,3:8000};
 function gpuOk(){return navigator.gpu?navigator.gpu.requestAdapter().then(function(a){return !!a}).catch(function(){return false}):Promise.resolve(false)}
 function detect(){
-  if(typeof WebAssembly!=='object')return Promise.resolve(0);
+  if(typeof WebAssembly!=='object'||typeof Worker!=='function')return Promise.resolve(0);
   var dm=navigator.deviceMemory;
   if(dm&&dm<=1)return Promise.resolve(0);
-  if(dm&&dm<4)return Promise.resolve(1);
-  if(dm&&dm>=6)return gpuOk().then(function(g){return g?3:2});
-  return Promise.resolve(2); /* 4-5 GB, or browsers that hide memory (iPhone, Firefox) */
+  return gpuOk().then(function(g){
+    if(g&&dm&&dm>=6)return 3;
+    if(g&&(!dm||dm>=4))return 2;
+    return 1;
+  });
 }
 var tierP=detect().then(function(t){tier=t;return t});
 
@@ -237,29 +240,58 @@ function openChat(id){
 var URL_T='https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1';
 var SYS='You are INKONG AI, a helpful assistant made by INKONG AI, founded by Magnus Crown (Founder and CEO). Always reply in the language the user writes in. Be clear and concise. Do not introduce yourself unless asked. Never reveal which model, provider or technology powers you.';
 var ENG={p:null},busy=false;
+function firstTime(){return !localStorage.getItem('ik_dl')}
 function setProg(t,p){var e=$('prog');e.style.display=t?'block':'none';$('pt').textContent=t||'';var w=Math.round((p||0)*100)+'%';$('pb').style.width=w;$('gpb').style.width=w}
 var LOAD='Activating local AI node on your device...';
-async function loadLM(t){
-  var m=await import(URL_T),M=MODELS[t];
-  var pipe=await m.pipeline('text-generation',M.id,{dtype:M.dtype,device:M.device,progress_callback:function(p){if(p.status==='progress')setProg(LOAD,p.progress/100)}});
-  return async function(msgs,on){
-    var out='',st=new m.TextStreamer(pipe.tokenizer,{skip_prompt:true,skip_special_tokens:true,callback_function:function(x){out+=x;on(out)}});
-    await pipe(msgs,{max_new_tokens:M.tok,do_sample:true,temperature:.7,streamer:st});
-    return out;
+/* The AI runs inside a Web Worker, so the page never freezes while it thinks. */
+function workerMain(){
+  var pipe=null,TS=null;
+  self.onmessage=async function(e){
+    var d=e.data;
+    try{
+      if(d.type==='load'){
+        var m=await import(d.lib);TS=m.TextStreamer;
+        pipe=await m.pipeline('text-generation',d.model.id,{dtype:d.model.dtype,device:d.model.device,progress_callback:function(p){if(p.status==='progress')self.postMessage({type:'prog',p:p.progress})}});
+        self.postMessage({type:'ready'});
+      }else if(d.type==='gen'){
+        var out='',st=new TS(pipe.tokenizer,{skip_prompt:true,skip_special_tokens:true,callback_function:function(x){out+=x;self.postMessage({type:'tok',t:out,id:d.id})}});
+        await pipe(d.msgs,{max_new_tokens:d.max,do_sample:true,temperature:.7,streamer:st});
+        self.postMessage({type:'done',t:out,id:d.id});
+      }
+    }catch(err){self.postMessage({type:'err',id:d.id})}
   };
+}
+function loadLM(t){
+  return new Promise(function(res,rej){
+    var M=MODELS[t],cbs={},req=0;
+    var blob=new Blob(['('+workerMain.toString()+')()'],{type:'text/javascript'});
+    var w;
+    try{w=new Worker(URL.createObjectURL(blob),{type:'module'})}catch(e){return rej()}
+    function gen(msgs,on){return new Promise(function(r2,j2){var id=++req;cbs[id]={on:on,res:r2,rej:j2};w.postMessage({type:'gen',id:id,msgs:msgs,max:M.tok})})}
+    w.onmessage=function(e){
+      var d=e.data;
+      if(d.type==='prog'){if(firstTime())setProg(LOAD,d.p/100)}
+      else if(d.type==='ready')res(gen);
+      else if(d.type==='tok'&&cbs[d.id])cbs[d.id].on(d.t);
+      else if(d.type==='done'&&cbs[d.id]){cbs[d.id].res(d.t);delete cbs[d.id]}
+      else if(d.type==='err'){if(d.id&&cbs[d.id]){cbs[d.id].rej();delete cbs[d.id]}else{w.terminate();rej()}}
+    };
+    w.onerror=function(){w.terminate();rej()};
+    w.postMessage({type:'load',lib:URL_T,model:M});
+  });
 }
 function gemGen(key){return function(msgs,on){
   var body={systemInstruction:{parts:[{text:SYS}]},contents:msgs.filter(function(m){return m.role!=='system'}).map(function(m){return{role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]}})};
   return fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key='+encodeURIComponent(key),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
-   .then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){var t=d.candidates[0].content.parts[0].text;on(t);return t});
+   .then(function(r){if(!r.ok)throw 'badkey';return r.json()}).then(function(d){var t=d.candidates[0].content.parts[0].text;on(t);return t});
 }}
 function ensure(ok){
   if(ENG.p)return ENG.p;
   ENG.p=tierP.then(function(){
     var t=tier,key=localStorage.getItem('ik_gem');
     if(t===0)return key?gemGen(key):null;
-    if(!ok&&!localStorage.getItem('ik_dl')&&!confirm('The first time, INKONG downloads a private AI to your device ('+MODELS[t].size+'). It is saved for next time. Continue? Wi-Fi is best.'))return null;
-    setProg(LOAD,0);
+    if(!ok&&firstTime()&&!confirm('The first time, INKONG downloads a private AI to your device ('+MODELS[t].size+'). It is saved for next time. Continue? Wi-Fi is best.'))return null;
+    if(firstTime())setProg(LOAD,0);
     return loadLM(t).catch(function(){
       if(t===3){tier=2;return loadLM(2).catch(function(){tier=1;return loadLM(1)})}
       if(t===2){tier=1;return loadLM(1)}
@@ -272,32 +304,37 @@ function ensure(ok){
   }).then(function(g){if(!g)ENG.p=null;return g});
   return ENG.p;
 }
-function history(){var c=chats.filter(function(x){return x.id===cur})[0],m=c?c.m.slice(-8):[];return [{role:'system',content:SYS}].concat(m.map(function(x){return{role:x[0]==='ai'?'assistant':'user',content:x[1]}}))}
+function history(){var c=chats.filter(function(x){return x.id===cur})[0],m=c?c.m.slice(tier===1?-4:-8):[];return [{role:'system',content:SYS}].concat(m.map(function(x){return{role:x[0]==='ai'?'assistant':'user',content:x[1]}}))}
+function okKey(k){return /^[A-Za-z0-9._-]{20,}$/.test(k)}
 function keyCard(){
   $('intro').style.display='none';$('thread').style.display='flex';
   var c=h('div','msg ai');
-  c.innerHTML='<b>This device is too old to run the private AI.</b><br>You can still use INKONG AI free with your own Gemini key.<details><summary>How to get your key</summary><ol><li>Tap Get your key below. It opens Google AI Studio.</li><li>Sign in with your Google account.</li><li>Tap Create API key. Keep the default name or type INKONG AI.</li><li>Copy the key it shows you.</li><li>Come back here, paste it in the box and tap Enter.</li></ol><span style="font-size:12px;color:#9a9aa2">Tip: make a key just for INKONG AI, so you can delete it any time.</span></details>';
+  c.innerHTML='<b>The private AI cannot run on this device right now.</b><br>You can still use INKONG AI free with your own Gemini key. It uses your own free Google quota, not ours.<details><summary>How to get your key</summary><ol><li>Tap Get your key below. It opens Google AI Studio.</li><li>Sign in with your Google account.</li><li>Tap Create API key.</li><li>Copy the key it shows you.</li><li>Come back here, paste it in the box and tap Enter.</li></ol><span style="font-size:12px;color:#9a9aa2">Tip: make a key just for INKONG AI, so you can delete it any time.</span></details>';
   var a=h('a','mini','Get your key');a.href='https://aistudio.google.com/apikey';a.target='_blank';a.rel='noopener';c.appendChild(a);
   var i=h('input','kin');i.placeholder='Paste your key here';c.appendChild(i);
   var b=h('button','mini','Enter');
-  b.onclick=function(){var k=i.value.trim();if(!/^AIza[\w-]{20,}$/.test(k)){toast('That does not look like a Gemini key.');return}try{localStorage.setItem('ik_gem',k)}catch(e){}c.remove();bubble('ai','Key saved on this device only. Ask me anything.')};
+  b.onclick=function(){var k=i.value.trim().replace(/^["']|["']$/g,'');if(!okKey(k)){toast('That does not look like a key. Copy the whole key.');return}try{localStorage.setItem('ik_gem',k)}catch(e){}ENG.p=null;c.remove();bubble('ai','Key saved on this device only. Ask me anything.')};
   c.appendChild(b);$('thread').appendChild(c);$('v-ai').scrollTop=$('v-ai').scrollHeight;
 }
 function askAI(){
   tierP.then(function(){
     if(tier===0&&!localStorage.getItem('ik_gem')){keyCard();return}
     busy=true;
-    var live=h('div','msg ai','...');$('thread').appendChild(live);$('v-ai').scrollTop=$('v-ai').scrollHeight;
+    var live=h('div','msg ai','Thinking...');$('thread').appendChild(live);$('v-ai').scrollTop=$('v-ai').scrollHeight;
     ensure().then(function(gen){
       if(!gen){live.remove();if(tier===0)keyCard();else bubble('ai','The private AI has not been downloaded yet. Send your message again to start it.');return}
       return gen(history(),function(t){live.textContent=t;$('v-ai').scrollTop=$('v-ai').scrollHeight}).then(function(t){live.remove();bubble('ai',t||'...')});
-    }).catch(function(){live.remove();bubble('ai','The AI could not answer. Please try again.')}).then(function(){busy=false});
+    }).catch(function(e){
+      live.remove();
+      if(e==='badkey'){try{localStorage.removeItem('ik_gem')}catch(x){}ENG.p=null;bubble('ai','Google rejected that key. Please paste it again.');keyCard()}
+      else bubble('ai','The AI could not answer. Please try again.');
+    }).then(function(){busy=false});
   });
 }
 function askLocal(prompt){
   return ensure().then(function(gen){
     if(!gen)return null;
-    return gen([{role:'system',content:SYS},{role:'user',content:prompt.slice(0,LIMITS[tier]||2500)}],function(){});
+    return gen([{role:'system',content:SYS},{role:'user',content:prompt.slice(0,LIMITS[tier]||1500)}],function(){});
   });
 }
 
@@ -364,17 +401,18 @@ function makePw(n){
 }
 
 /* ---------- Videos: YouTube playlist feed (movies.json) ---------- */
-var YT_O='https://www.youtube-nocookie.com',vdb=null,vio=null,vq=[],vcat='For You',vmute=false,vauto=false,vrate=1;
+var YT_O='https://www.youtube-nocookie.com',vdb=null,vio=null,vq=[],vcat='For You',vmute=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),vauto=false,vrate=1,vgest=false;
+document.addEventListener('pointerdown',function(){vgest=true},{capture:true,once:true});
 function vlist(cat){var a=[];Object.keys(vdb).forEach(function(k){if(cat==='For You'||cat===k)(vdb[k]||[]).forEach(function(id){a.push({id:id,cat:k})})});return a.sort(function(){return Math.random()-.5})}
 function ytCmd(c,fn,a){var f=c.querySelector('iframe');if(f&&f.contentWindow)f.contentWindow.postMessage(JSON.stringify({event:'command',func:fn,args:a||[]}),YT_O)}
 function vplay(c){
   var fr=document.createElement('iframe');
-  fr.src=YT_O+'/embed/videoseries?list='+encodeURIComponent(c._x.id)+'&autoplay=1&controls=0&disablekb=1&playsinline=1&rel=0&modestbranding=1&fs=0&iv_load_policy=3&enablejsapi=1&origin='+encodeURIComponent(location.origin);
+  fr.src=YT_O+'/embed/videoseries?list='+encodeURIComponent(c._x.id)+'&autoplay=1&mute=1&controls=0&disablekb=1&playsinline=1&rel=0&modestbranding=1&fs=0&iv_load_policy=3&enablejsapi=1&origin='+encodeURIComponent(location.origin);
   fr.allow='autoplay; encrypted-media';fr.title='Video';fr.setAttribute('referrerpolicy','strict-origin-when-cross-origin');
   fr.onload=function(){
     if(c._ph.parentNode)c._ph.remove();
     try{fr.contentWindow.postMessage(JSON.stringify({event:'listening',id:1,channel:'widget'}),YT_O)}catch(e){}
-    setTimeout(function(){if(vrate!==1)ytCmd(c,'setPlaybackRate',[vrate]);if(vmute)ytCmd(c,'mute')},1200);
+    setTimeout(function(){if(vrate!==1)ytCmd(c,'setPlaybackRate',[vrate]);if(!vmute&&vgest)ytCmd(c,'unMute')},1200);
   };
   c.insertBefore(fr,c.firstChild);
 }
@@ -448,7 +486,7 @@ function loadVids(cat){
         if(!c._ph.parentNode)c.insertBefore(c._ph,c.firstChild);
       }
     })},{threshold:.6});
-    vmore();
+    vmore();if(vmute)toast('Videos start muted. Tap 🔇 for sound.');
   }).catch(function(){vl=0;f.innerHTML='';f.appendChild(h('p','sub','Videos are not available right now.'))});
 }
 
@@ -497,7 +535,7 @@ function send(){
     if(tool==='qr'){toast('QR generator is added in the next build step.');return}
     runTool(tool,text,f);return;
   }
-  if(/^AIza[\w-]{20,}$/.test(text)){try{localStorage.setItem('ik_gem',text)}catch(e){}toast('Key saved on this device only. Ask me anything.');return}
+  if(/^(AIza|AQ\.)[\w.-]{20,}$/.test(text)){try{localStorage.setItem('ik_gem',text)}catch(e){}ENG.p=null;toast('Key saved on this device only. Ask me anything.');return}
   bubble('user',f?(text?text+'\n':'')+'📎 '+f.name:text);askAI();
 }
 $('send').onclick=send;
@@ -511,7 +549,7 @@ $('in').addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){
   function open(){$('gate').style.display='none'}
   function mark(){try{localStorage.setItem('ik_ok','1')}catch(e){}}
   $('enter').onclick=function(){
-    if(localStorage.getItem('ik_ok'))return open();
+    if(localStorage.getItem('ik_ok')){open();tierP.then(function(t){if(t>0)ensure(true)});return}
     tierP.then(function(t){
       if(t===0){mark();return open()}
       $('enter').style.display='none';$('gdis').style.display='none';
