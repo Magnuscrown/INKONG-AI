@@ -43,12 +43,17 @@ main{flex:1;position:relative;overflow:hidden}
 .back{margin:12px 14px 0;padding:8px 14px;border-radius:999px;border:1px solid var(--bd);background:var(--p);font-size:12.5px;color:var(--sb)}
 .pw{font-family:ui-monospace,Menlo,monospace;font-size:17px;word-break:break-all;padding:16px;border-radius:12px;background:var(--p);border:1px solid var(--bd);margin:16px 0;width:100%;max-width:420px}
 #feed{height:100%;overflow-y:scroll;scroll-snap-type:y mandatory}
-.vc{position:relative;height:100%;scroll-snap-align:start;background:#000}
-.vc{display:flex;align-items:center;justify-content:center}.vc video,.vc img{width:100%;max-height:100%;height:auto;object-fit:contain;background:#000}.vc iframe{width:100%;height:100%;border:0}
+.vc{position:relative;height:100%;scroll-snap-align:start;background:#000;display:flex;align-items:center;justify-content:center}
+.vc iframe{width:100%;height:auto;aspect-ratio:16/9;border:0}
+.tap{position:absolute;inset:0;z-index:2;touch-action:pan-y}
 #vcats{position:absolute;top:8px;left:0;right:0;z-index:5;display:flex;gap:6px;overflow-x:auto;padding:0 10px}
-.vo{position:absolute;right:10px;bottom:70px;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
-.vt{position:absolute;left:0;right:90px;bottom:0;padding:24px 14px 14px;background:linear-gradient(transparent,rgba(0,0,0,.8));font-size:13px;pointer-events:none}
-.vt a{color:#ddd;font-size:12px;pointer-events:auto}
+.vo{position:absolute;right:10px;bottom:70px;z-index:4;display:flex;flex-direction:column;gap:10px;align-items:flex-end}
+.ico{width:44px;height:44px;border-radius:50%;border:1px solid var(--bd);background:rgba(0,0,0,.55);font-size:19px;padding:0}
+.vt{position:absolute;left:0;right:90px;bottom:0;z-index:3;padding:24px 14px 14px;background:linear-gradient(transparent,rgba(0,0,0,.8));font-size:13px;pointer-events:none}
+#v-vid.clr .vo,#v-vid.clr .vt,#v-vid.clr #vcats,#v-vid.clr #vauto{display:none!important}
+#vauto{position:absolute;top:52px;left:50%;transform:translateX(-50%);z-index:5;width:30px;height:30px;border-radius:50%;border:2px solid var(--ac);display:none;align-items:center;justify-content:center;font-size:13px;background:rgba(0,0,0,.6)}
+.vm{position:fixed;left:0;right:0;bottom:0;z-index:58;background:var(--p2);border-top:1px solid var(--bd);border-radius:18px 18px 0 0;padding:16px 0 calc(16px + env(safe-area-inset-bottom,0))}
+.vrow{display:flex;gap:8px;padding:0 16px 12px;justify-content:center}
 .games{display:none;flex-direction:column;height:100%}.games.on{display:flex}
 .gbar{display:flex;align-items:center;gap:10px;padding:10px 14px}.gbar .back{margin:0}.gbar b{flex:1;font-size:14px;text-align:center}
 .gstage{flex:1;margin:0 12px 12px;border-radius:18px;overflow:hidden;position:relative;border:1px solid var(--bd);box-shadow:0 0 34px var(--gl);background:#000}
@@ -137,7 +142,7 @@ nav button{transition:transform .22s ease,color .22s,text-shadow .22s}nav button
 <div id="gate"><div class="gin">
 <div class="logo3d" id="logo3d" aria-label="INKONG AI"></div>
 <p class="gtxt" id="gdis">INKONG AI runs on your own device. We don't save your data on our servers: your chats and saves stay in this browser. Ads from partner networks may use cookies. By entering you accept the <span class="lnk" data-m="Terms">Terms</span> and <span class="lnk" data-m="Privacy">Privacy Policy</span>.</p>
-<button class="bigbtn" id="enter">ENTER APPLICATION</button>
+<button class="bigbtn" id="enter">ENTER</button>
 <div id="gdl"><p class="gtxt" id="gdt"></p><div id="gbtns"><button class="bigbtn" id="gok">APPROVE</button><button class="mini" id="gno">CANCEL</button></div><div id="gbar"><i id="gpb"></i></div></div>
 </div></div>
 <div id="modal"><div id="mb"></div></div><div id="toast"></div>
@@ -148,20 +153,19 @@ var $=function(i){return document.getElementById(i)};
 function h(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
 function ls(k,d){try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}}
 function sv(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
-/* SETTINGS: fill before launch */
-var CFG={SEARX_URL:'',CAPTION_PROXY:'/api/captions'};
-var HOOKS=["Your chats live on your device. Clear your browser and they're gone.","The AI runs on your own phone or laptop, not on our servers.","Ask in any language. INKONG answers in yours.","Free chat, search, tools and games. Ads keep it free.","No account needed. Start typing.","Fact-check a video, summarize it, or transcribe it.","Saved chats stay in this browser, nowhere else.","Search the web, then read or translate any result."];
+/* SETTINGS */
+var CFG={SEARX_URL:'',CAPTION_PROXY:''};
+var HOOKS=["Your chats live on your device. Clear your browser and they're gone.","The AI runs on your own phone or laptop, not on our servers.","Ask in any language. INKONG answers in yours.","Free chat, search, tools and games. Ads keep it free.","No account needed. Start typing.","Search the web, then read or translate any result.","Saved chats stay in this browser, nowhere else."];
 var TOOLS={
-fact:{i:'🔎',n:'Fact Check',h:'Paste a video link to check its claims',s:'Paste a video link or a transcript, or attach a .txt file. INKONG checks each claim.',p:'Paste the video link...'},
-sum:{i:'📝',n:'Video Summarizer',h:'Paste a long video link to get the key points',s:'Paste a video link or a transcript, or attach a .txt file. You get the key points.',p:'Paste the video link...'},
-trans:{i:'🎙️',n:'Video Transcriber',h:'Paste a video link to get the full text',s:'Paste a video link to get its captions as text.',p:'Paste the video link...'},
+fact:{i:'🔎',n:'Fact Check',h:'Paste a transcript to check its claims',s:'Paste a transcript, or attach a .txt file. INKONG checks each claim.',p:'Paste the transcript...'},
+sum:{i:'📝',n:'Video Summarizer',h:'Paste a transcript to get the key points',s:'Paste a transcript, or attach a .txt file. You get the key points.',p:'Paste the transcript...'},
+trans:{i:'🎙️',n:'Video Transcriber',h:'Paste a video link to get the full text',s:'Paste a link to a video with captions to get its text.',p:'Paste the video link...'},
 det:{i:'🕵️',n:'AI Text Detector',h:'Paste text to check if AI wrote it',s:'You get an AI-probability score with reasons.',p:'Paste the text to check...'},
 qr:{i:'🔗',n:'QR Code Generator',h:'Turn a link or text into a QR code',s:'Works on your device. Nothing is uploaded.',p:'Paste a link or text...'},
 pw:{i:'🔐',n:'Password Generator',h:'Make a strong random password',s:'Made on your device with secure random numbers.'}
 };
 var GAMES=[['⚔️','Action','#ff5a5f'],['🧩','Puzzle','#8b93ff'],['🕹️','Arcade','#f5b942'],['🏎️','Racing','#4ade80'],['⚽','Sports','#38bdf8'],['🃏','Cards','#f472b6']].map(function(g){return{e:g[0],n:g[1],c:g[2],url:''}});
-/* ALLOWLISTS: only these hosts may load inside the page. Fill once providers are chosen. */
-var GAME_HOSTS=[],VIDEO_HOSTS=['www.youtube-nocookie.com','www.youtube.com','player.vimeo.com'];
+var GAME_HOSTS=[];
 function okHost(u,list){try{var x=new URL(u);return x.protocol==='https:'&&list.some(function(h){return x.hostname===h||x.hostname.endsWith('.'+h)})}catch(e){return false}}
 var tab='ai',tool=null,tier=0,att=null,cur=null,vl=0;
 var chats=ls('ik_chats',[]),sq=ls('ik_s',[]),vs=ls('ik_v',[]);
@@ -179,6 +183,7 @@ function go(t,tl){
   $('in').placeholder=t==='search'?'Search anything...':(tool&&TOOLS[tool]?TOOLS[tool].p:'Ask INKONG...');
   if(t==='qa')renderQA();
   if(t==='vid')loadVids();
+  if(t!=='vid'){var m=$('vm');if(m)m.remove();stopVids()}
   closeAll();
 }
 document.querySelectorAll('#nav button').forEach(function(b){b.onclick=function(){go(b.dataset.t)}});
@@ -188,15 +193,30 @@ function closeAll(){$('drawer').classList.remove('on');$('sheet').classList.remo
 $('burger').onclick=openDrawer;$('scrim').onclick=closeAll;
 $('more').onclick=function(){var s=$('sheet');if(s.classList.contains('on'))closeAll();else{s.classList.add('on');$('scrim').classList.add('on')}};
 
-/* menu tools: same as tapping the tab bar, lands in Quick Actions */
 var sb=$('sb');
 ['fact','sum','trans','det'].forEach(function(k){var b=h('button','stack',TOOLS[k].i+' '+TOOLS[k].n);b.onclick=function(){go('qa',k)};sb.appendChild(b)});
 
 /* ---------- AI tab ---------- */
-function detect(){return new Promise(function(r){
-  var dm=navigator.deviceMemory;if(dm&&dm<=2)return r(3);
-  if(navigator.gpu){navigator.gpu.requestAdapter().then(function(a){r(a?1:2)}).catch(function(){r(2)})}
-  else r(typeof WebAssembly==='object'?2:3)})}
+/* TIERS (by device memory):
+   0 = very old device -> user's own free Gemini key
+   1 = low-end  2-3 GB  -> SmolLM2-135M  (WebAssembly, ~135 MB)
+   2 = mid-range 4-5 GB -> Qwen2.5-0.5B  (WebAssembly, ~400 MB)
+   3 = high-end 6 GB+   -> Llama-3.2-1B  (WebGPU, ~1 GB) */
+var MODELS={
+ 1:{id:'onnx-community/SmolLM2-135M-Instruct',dtype:'q8',device:'wasm',size:'about 135 MB',tok:300},
+ 2:{id:'onnx-community/Qwen2.5-0.5B-Instruct',dtype:'q4',device:'wasm',size:'about 400 MB',tok:400},
+ 3:{id:'onnx-community/Llama-3.2-1B-Instruct',dtype:'q4f16',device:'webgpu',size:'about 1 GB',tok:600}
+};
+var LIMITS={0:60000,1:2500,2:4000,3:12000};
+function gpuOk(){return navigator.gpu?navigator.gpu.requestAdapter().then(function(a){return !!a}).catch(function(){return false}):Promise.resolve(false)}
+function detect(){
+  if(typeof WebAssembly!=='object')return Promise.resolve(0);
+  var dm=navigator.deviceMemory;
+  if(dm&&dm<=1)return Promise.resolve(0);
+  if(dm&&dm<4)return Promise.resolve(1);
+  if(dm&&dm>=6)return gpuOk().then(function(g){return g?3:2});
+  return Promise.resolve(2); /* 4-5 GB, or browsers that hide memory (iPhone, Firefox) */
+}
 var tierP=detect().then(function(t){tier=t;return t});
 
 function bubble(role,text,persist){
@@ -214,22 +234,19 @@ function openChat(id){
   var c=chats.filter(function(x){return x.id===id})[0];if(!c)return;
   cur=id;$('thread').innerHTML='';c.m.forEach(function(m){bubble(m[0],m[1],false)});go('ai');
 }
-/* ---------- AI engine: tier 1 WebGPU, tier 2 WASM lite, tier 3 own Gemini key ---------- */
-var URL_W='https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.85/+esm',URL_T='https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1';
-var M1='gemma-2-2b-it-q4f16_1-MLC',M2='onnx-community/Qwen2.5-0.5B-Instruct';
+var URL_T='https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1';
 var SYS='You are INKONG AI, a helpful assistant made by INKONG AI, founded by Magnus Crown (Founder and CEO). Always reply in the language the user writes in. Be clear and concise. Do not introduce yourself unless asked. Never reveal which model, provider or technology powers you.';
 var ENG={p:null},busy=false;
 function setProg(t,p){var e=$('prog');e.style.display=t?'block':'none';$('pt').textContent=t||'';var w=Math.round((p||0)*100)+'%';$('pb').style.width=w;$('gpb').style.width=w}
 var LOAD='Activating local AI node on your device...';
-async function loadWebLLM(){
-  var m=await import(URL_W);
-  var eng=await m.CreateMLCEngine(M1,{initProgressCallback:function(r){setProg(LOAD,r.progress)}});
-  return async function(msgs,on){var st=await eng.chat.completions.create({messages:msgs,stream:true,temperature:.7,max_tokens:700}),t='';for await(var c of st){var d=c.choices[0]&&c.choices[0].delta.content;if(d){t+=d;on(t)}}return t};
-}
-async function loadLite(){
-  var m=await import(URL_T);
-  var pipe=await m.pipeline('text-generation',M2,{dtype:'q4',device:'wasm',progress_callback:function(p){if(p.status==='progress')setProg(LOAD,p.progress/100)}});
-  return async function(msgs,on){var t='',st=new m.TextStreamer(pipe.tokenizer,{skip_prompt:true,skip_special_tokens:true,callback_function:function(x){t+=x;on(t)}});await pipe(msgs,{max_new_tokens:400,do_sample:true,temperature:.7,streamer:st});return t};
+async function loadLM(t){
+  var m=await import(URL_T),M=MODELS[t];
+  var pipe=await m.pipeline('text-generation',M.id,{dtype:M.dtype,device:M.device,progress_callback:function(p){if(p.status==='progress')setProg(LOAD,p.progress/100)}});
+  return async function(msgs,on){
+    var out='',st=new m.TextStreamer(pipe.tokenizer,{skip_prompt:true,skip_special_tokens:true,callback_function:function(x){out+=x;on(out)}});
+    await pipe(msgs,{max_new_tokens:M.tok,do_sample:true,temperature:.7,streamer:st});
+    return out;
+  };
 }
 function gemGen(key){return function(msgs,on){
   var body={systemInstruction:{parts:[{text:SYS}]},contents:msgs.filter(function(m){return m.role!=='system'}).map(function(m){return{role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]}})};
@@ -240,14 +257,18 @@ function ensure(ok){
   if(ENG.p)return ENG.p;
   ENG.p=tierP.then(function(){
     var t=tier,key=localStorage.getItem('ik_gem');
-    if(t===3)return key?gemGen(key):null;
-    if(!ok&&!localStorage.getItem('ik_dl')&&!confirm('The first time, INKONG downloads a private AI to your device ('+(t===1?'about 1.5 GB':'about 400 MB')+'). It is saved for next time. Continue? Wi-Fi is best.'))return null;
+    if(t===0)return key?gemGen(key):null;
+    if(!ok&&!localStorage.getItem('ik_dl')&&!confirm('The first time, INKONG downloads a private AI to your device ('+MODELS[t].size+'). It is saved for next time. Continue? Wi-Fi is best.'))return null;
     setProg(LOAD,0);
-    return (t===1?loadWebLLM():loadLite()).catch(function(){if(t===1){tier=2;return loadLite()}throw 0}).then(function(g){
+    return loadLM(t).catch(function(){
+      if(t===3){tier=2;return loadLM(2).catch(function(){tier=1;return loadLM(1)})}
+      if(t===2){tier=1;return loadLM(1)}
+      throw 0;
+    }).then(function(g){
       try{localStorage.setItem('ik_dl','1')}catch(e){}setProg('');
-      if(tier===2)toast('Running in Lite Battery-Saver Mode.');
+      if(tier===1)toast('Running in Lite Battery-Saver Mode.');
       return g;
-    },function(){setProg('');tier=3;return key?gemGen(key):null});
+    },function(){setProg('');tier=0;return key?gemGen(key):null});
   }).then(function(g){if(!g)ENG.p=null;return g});
   return ENG.p;
 }
@@ -263,29 +284,30 @@ function keyCard(){
   c.appendChild(b);$('thread').appendChild(c);$('v-ai').scrollTop=$('v-ai').scrollHeight;
 }
 function askAI(){
-  if(tier===3&&!localStorage.getItem('ik_gem')){keyCard();return}
-  busy=true;
-  var live=h('div','msg ai','...');$('thread').appendChild(live);$('v-ai').scrollTop=$('v-ai').scrollHeight;
-  ensure().then(function(gen){
-    if(!gen){live.remove();if(tier===3)keyCard();else bubble('ai','The private AI has not been downloaded yet. Send your message again to start it.');return}
-    return gen(history(),function(t){live.textContent=t;$('v-ai').scrollTop=$('v-ai').scrollHeight}).then(function(t){live.remove();bubble('ai',t||'...')});
-  }).catch(function(){live.remove();bubble('ai','The AI could not answer. Please try again.')}).then(function(){busy=false});
+  tierP.then(function(){
+    if(tier===0&&!localStorage.getItem('ik_gem')){keyCard();return}
+    busy=true;
+    var live=h('div','msg ai','...');$('thread').appendChild(live);$('v-ai').scrollTop=$('v-ai').scrollHeight;
+    ensure().then(function(gen){
+      if(!gen){live.remove();if(tier===0)keyCard();else bubble('ai','The private AI has not been downloaded yet. Send your message again to start it.');return}
+      return gen(history(),function(t){live.textContent=t;$('v-ai').scrollTop=$('v-ai').scrollHeight}).then(function(t){live.remove();bubble('ai',t||'...')});
+    }).catch(function(){live.remove();bubble('ai','The AI could not answer. Please try again.')}).then(function(){busy=false});
+  });
 }
 function askLocal(prompt){
   return ensure().then(function(gen){
     if(!gen)return null;
-    var lim=tier===1?12000:tier===2?4000:60000;
-    return gen([{role:'system',content:SYS},{role:'user',content:prompt.slice(0,lim)}],function(){});
+    return gen([{role:'system',content:SYS},{role:'user',content:prompt.slice(0,LIMITS[tier]||2500)}],function(){});
   });
 }
 
-/* ---------- Video tools: transcript pipeline ---------- */
+/* ---------- Quick tools ---------- */
 var PROMPTS={fact:'List each factual claim in this transcript and rate it TRUE, MISLEADING, FALSE or UNCLEAR with a short reason and a confidence percentage.',sum:'Summarize this text into 3 clean bullet points.',det:'Estimate how likely this text was written by AI. Give a percentage and the reasons.'};
 function qout(x){var v=$('v-qa'),o=$('qres');if(!o){o=h('div','pad');o.id='qres';v.appendChild(o)}o.innerHTML='';var m=h('div','msg ai',x);m.style.maxWidth='100%';o.appendChild(m);v.scrollTop=v.scrollHeight}
 function runTool(id,text,f){
   var isUrl=/^https?:\/\/\S+$/.test(text),body;
   if(isUrl){
-    if(!CFG.CAPTION_PROXY){toast('Paste the transcript for now. Link captions need the caption helper, added next.');return}
+    if(!CFG.CAPTION_PROXY){toast('Paste the transcript for now. Link captions are not available yet.');return}
     qout('Getting captions...');
     body=fetch(CFG.CAPTION_PROXY+'?url='+encodeURIComponent(text)).then(function(r){return r.text().then(function(t){if(!r.ok)throw t;return t})});
   }else body=Promise.resolve(f&&f.text?f.text:text);
@@ -297,7 +319,7 @@ function runTool(id,text,f){
   }).catch(function(e){qout(typeof e==='string'&&e?e:'Could not get captions for that link. Paste the transcript instead.')});
 }
 
-/* ---------- Search tab ---------- */
+/* ---------- Search tab (Wikipedia for now) ---------- */
 function doSearch(q){
   if(sq.indexOf(q)<0){sq.push(q);sv('ik_s',sq)}
   var box=$('res');box.innerHTML='';box.appendChild(h('p','sub','Searching...'));
@@ -341,82 +363,93 @@ function makePw(n){
   crypto.getRandomValues(a);for(var i=0;i<n;i++)s+=cs[a[i]%cs.length];return s;
 }
 
-/* ---------- Videos: endless mixed feed from many free sources ---------- */
-var IA='https://archive.org',vio=null,vseen={},vst={cat:'For You',page:0,busy:false,empty:0};
-var TERMS=['nature','animals','space','city','travel','science','music','sports','ocean','history','cooking','art'];
-function pick(){return TERMS[Math.floor(Math.random()*TERMS.length)]}
-/* tune collection names here; a failing one is skipped */
-var VCATS={'Action Shorts':'collection:opensource_movies AND subject:action','Horror/Sci-Fi':'collection:SciFi_Horror','Classic Comedy':'collection:comedy_films','Trending Memes':'collection:opensource_movies AND (subject:meme OR subject:funny)'};
-var IA_COLS=['opensource_movies','SciFi_Horror','comedy_films','classic_tv','feature_films','prelinger','classic_cartoons'];
-function iaItem(d){var id=d.identifier;return{id:IA+'/details/'+id,title:d.title,link:IA+'/details/'+id,poster:IA+'/services/img/'+id,resolve:function(){
-  return fetch(IA+'/metadata/'+encodeURIComponent(id)).then(function(r){return r.json()}).then(function(m){
-    var fs=(m.files||[]).filter(function(x){return /\.mp4$/i.test(x.name)&&+x.size>200000}).sort(function(a,b){return a.size-b.size});
-    if(!fs.length)throw 0;return IA+'/download/'+encodeURIComponent(id)+'/'+fs[0].name.split('/').map(encodeURIComponent).join('/')})}}}
-function iaFetch(q,pg){return fetch(IA+'/advancedsearch.php?q='+encodeURIComponent(q+' AND mediatype:movies')+'&fl[]=identifier&fl[]=title&sort[]=downloads+desc&rows=8&page='+(pg+1)+'&output=json').then(function(r){return r.json()}).then(function(d){return ((d.response&&d.response.docs)||[]).map(iaItem)})}
-var SOURCES=IA_COLS.map(function(c){return{load:function(pg){return iaFetch('collection:'+c,pg)}}}).concat([
- {load:function(pg){return fetch('https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrlimit=8&gsroffset='+pg*8+'&gsrsearch='+encodeURIComponent('filetype:video '+pick())+'&prop=imageinfo&iiprop=url|mime&format=json&origin=*').then(function(r){return r.json()}).then(function(d){
-   return Object.keys((d.query&&d.query.pages)||{}).map(function(k){return d.query.pages[k]}).filter(function(x){return x.imageinfo&&/video\/(webm|mp4)/.test(x.imageinfo[0].mime)}).map(function(x){var u=x.imageinfo[0].url;
-    return{id:u,title:x.title.replace(/^File:/,'').replace(/\.\w+$/,''),link:'https://commons.wikimedia.org/wiki/'+encodeURIComponent(x.title.replace(/ /g,'_')),resolve:function(){return Promise.resolve(u)}}})})}},
- {load:function(pg){return fetch('https://images-api.nasa.gov/search?media_type=video&q='+pick()+'&page='+(pg+1)).then(function(r){return r.json()}).then(function(d){
-   return ((d.collection&&d.collection.items)||[]).slice(0,8).map(function(x){var m=x.data[0];
-    return{id:'nasa:'+m.nasa_id,title:m.title,link:'https://images.nasa.gov/details/'+encodeURIComponent(m.nasa_id),poster:x.links&&x.links[0].href,resolve:function(){return fetch(x.href).then(function(r){return r.json()}).then(function(a){
-     var u=a.filter(function(y){return /~(medium|small)\.mp4$/i.test(y)})[0]||a.filter(function(y){return /\.mp4$/i.test(y)})[0];if(!u)throw 0;return u.replace('http://','https://')})}}})})}}
-]);
-function hydrate(c){
-  var ph=c._ph;
-  (c._u?Promise.resolve(c._u):c._it.resolve()).then(function(u){
-    c._u=u;var v=h('video');v.controls=true;v.playsInline=true;v.muted=true;v.loop=true;v.preload='metadata';if(c._it.poster)v.poster=c._it.poster;v.src=u;
-    ph.remove();c.insertBefore(v,c.firstChild);v.play().catch(function(){});
-  }).catch(function(){ph.textContent='This video cannot play here. Swipe to the next one.'});
+/* ---------- Videos: YouTube playlist feed (movies.json) ---------- */
+var YT_O='https://www.youtube-nocookie.com',vdb=null,vio=null,vq=[],vcat='For You',vmute=false,vauto=false,vrate=1;
+function vlist(cat){var a=[];Object.keys(vdb).forEach(function(k){if(cat==='For You'||cat===k)(vdb[k]||[]).forEach(function(id){a.push({id:id,cat:k})})});return a.sort(function(){return Math.random()-.5})}
+function ytCmd(c,fn,a){var f=c.querySelector('iframe');if(f&&f.contentWindow)f.contentWindow.postMessage(JSON.stringify({event:'command',func:fn,args:a||[]}),YT_O)}
+function vplay(c){
+  var fr=document.createElement('iframe');
+  fr.src=YT_O+'/embed/videoseries?list='+encodeURIComponent(c._x.id)+'&autoplay=1&controls=0&disablekb=1&playsinline=1&rel=0&modestbranding=1&fs=0&iv_load_policy=3&enablejsapi=1&origin='+encodeURIComponent(location.origin);
+  fr.allow='autoplay; encrypted-media';fr.title='Video';fr.setAttribute('referrerpolicy','strict-origin-when-cross-origin');
+  fr.onload=function(){
+    if(c._ph.parentNode)c._ph.remove();
+    try{fr.contentWindow.postMessage(JSON.stringify({event:'listening',id:1,channel:'widget'}),YT_O)}catch(e){}
+    setTimeout(function(){if(vrate!==1)ytCmd(c,'setPlaybackRate',[vrate]);if(vmute)ytCmd(c,'mute')},1200);
+  };
+  c.insertBefore(fr,c.firstChild);
 }
-function addCard(x){
-  var f=$('feed'),c=h('div','vc'),title=x.title||'Video';
-  c._it=x;c._ph=h('p','sub ph','Loading...');c.appendChild(c._ph);
+function stopVids(){document.querySelectorAll('.vc').forEach(function(c){if(c._ld){c._ld=0;c._paused=false;var fr=c.querySelector('iframe');if(fr)fr.remove();if(!c._ph.parentNode)c.insertBefore(c._ph,c.firstChild)}})}
+function vmenu(c,url){
+  var m=$('vm');if(m)m.remove();
+  m=h('div','vm');m.id='vm';
+  var row=h('div','vrow');
+  [0.5,1,1.5,2].forEach(function(r){var b=h('button','mini',r+'x');if(r===vrate)b.style.borderColor='var(--ac)';b.onclick=function(){vrate=r;document.querySelectorAll('.vc').forEach(function(k){ytCmd(k,'setPlaybackRate',[r])});m.remove()};row.appendChild(b)});
+  m.appendChild(row);
+  var a=h('button','stack','Auto-scroll: '+(vauto?'On':'Off'));a.onclick=function(){vauto=!vauto;$('vauto').style.display=vauto?'flex':'none';m.remove()};m.appendChild(a);
+  var cl=h('button','stack','Clear display');cl.onclick=function(){$('v-vid').classList.add('clr');m.remove()};m.appendChild(cl);
+  var yo=h('a','stack','Open on YouTube');yo.href=url;yo.target='_blank';yo.rel='noopener';yo.style.textDecoration='none';yo.style.color='inherit';m.appendChild(yo);
+  var x=h('button','stack','Close');x.onclick=function(){m.remove()};m.appendChild(x);
+  document.body.appendChild(m);
+}
+function vcard(x){
+  var f=$('feed'),c=h('div','vc'),url='https://www.youtube.com/playlist?list='+x.id,sid='yt:'+x.id,name=x.cat.charAt(0).toUpperCase()+x.cat.slice(1);
+  c._x=x;c._ph=h('p','sub ph','Loading...');c.appendChild(c._ph);
+  var tap=h('div','tap');c.appendChild(tap);
   var o=h('div','vo');
-  var s1=h('button','mini',vs.some(function(y){return y.id===x.id})?'♥ Saved':'♡ Save');
-  s1.onclick=function(){var i=vs.findIndex(function(y){return y.id===x.id});if(i<0){vs.push({id:x.id,title:title,url:x.link});s1.textContent='♥ Saved'}else{vs.splice(i,1);s1.textContent='♡ Save'}sv('ik_v',vs)};
-  var fc=h('button','mini','🔎 Fact Check');fc.onclick=function(){go('qa','fact');$('in').value=x.link};
-  var sm=h('button','mini','📝 Summarize');sm.onclick=function(){go('qa','sum');$('in').value=x.link};
-  o.appendChild(s1);o.appendChild(fc);o.appendChild(sm);
-  var t=h('div','vt');t.appendChild(h('div',null,title));
-  var a=h('a',null,'↗ Open original');a.href=x.link;a.target='_blank';a.rel='noopener';t.appendChild(a);
-  c.appendChild(o);c.appendChild(t);f.appendChild(c);vio.observe(c);
+  function ib(t,fn,cls){var b=h('button','ico'+(cls?' '+cls:''),t);b.onclick=fn;o.appendChild(b);return b}
+  var s1=ib(vs.some(function(y){return y.id===sid})?'♥':'♡',function(){var i=vs.findIndex(function(y){return y.id===sid});if(i<0){vs.push({id:sid,title:name+' playlist',url:url});s1.textContent='♥'}else{vs.splice(i,1);s1.textContent='♡'}sv('ik_v',vs)});
+  ib('🔎',function(){go('qa','fact');toast('Paste the transcript, then send.')});
+  ib('📝',function(){go('qa','sum');toast('Paste the transcript, then send.')});
+  ib(vmute?'🔇':'🔊',function(){vmute=!vmute;document.querySelectorAll('.vc').forEach(function(k){ytCmd(k,vmute?'mute':'unMute')});document.querySelectorAll('.ico.mt').forEach(function(b){b.textContent=vmute?'🔇':'🔊'})},'mt');
+  c.appendChild(o);
+  c.appendChild(h('div','vt',name));
+  var tm=null,lp=false,sx=0,sy=0;
+  tap.onpointerdown=function(e){lp=false;sx=e.clientX;sy=e.clientY;clearTimeout(tm);tm=setTimeout(function(){lp=true;vmenu(c,url)},2000)};
+  tap.onpointermove=function(e){if(Math.abs(e.clientX-sx)+Math.abs(e.clientY-sy)>12)clearTimeout(tm)};
+  tap.onpointercancel=function(){clearTimeout(tm)};
+  tap.onpointerup=function(e){
+    clearTimeout(tm);
+    if(lp||Math.abs(e.clientX-sx)+Math.abs(e.clientY-sy)>12)return;
+    if($('v-vid').classList.contains('clr')){$('v-vid').classList.remove('clr');return}
+    c._paused=!c._paused;ytCmd(c,c._paused?'pauseVideo':'playVideo');
+  };
+  f.appendChild(c);vio.observe(c);
 }
-function more(){
-  if(vst.busy)return;vst.busy=true;var cat=vst.cat;
-  var srcs=cat==='For You'?SOURCES:[{load:function(pg){return iaFetch(VCATS[cat],pg)}}];
-  Promise.all(srcs.map(function(s){return s.load(vst.page).catch(function(){return []})})).then(function(res){
-    if(cat!==vst.cat)return;
-    var f=$('feed'),ld=f.querySelector('.ldg');if(ld)ld.remove();
-    var items=[].concat.apply([],res).filter(function(x){return !vseen[x.id]});
-    items.sort(function(){return Math.random()-.5});
-    items.forEach(function(x){vseen[x.id]=1;addCard(x)});
-    vst.page++;vst.busy=false;vst.empty=items.length?0:vst.empty+1;
-    if(!items.length){if(vst.empty<3)more();else if(!f.querySelector('.vc'))f.appendChild(h('p','sub','No videos right now. Try again in a moment.'))}
-  });
+function vmore(){if(!vq.length)vq=vlist(vcat);vq.splice(0,8).forEach(vcard)}
+window.addEventListener('message',function(e){
+  if(e.origin!==YT_O||!vauto)return;
+  var d;try{d=JSON.parse(e.data)}catch(x){return}
+  if(d.event==='onStateChange'&&d.info===0){
+    var cs=document.querySelectorAll('.vc');
+    for(var i=0;i<cs.length;i++){var fr=cs[i].querySelector('iframe');if(fr&&fr.contentWindow===e.source){var n=cs[i].nextElementSibling;if(n)n.scrollIntoView({behavior:'smooth'});break}}
+  }
+});
+function vbar(){
+  if($('vcats'))return;
+  var bar=h('div');bar.id='vcats';
+  ['For You'].concat(Object.keys(vdb)).forEach(function(n){var b=h('button','mini',n.charAt(0).toUpperCase()+n.slice(1));b.onclick=function(){vl=1;loadVids(n)};bar.appendChild(b)});
+  $('v-vid').appendChild(bar);
+  var ai=h('div',null,'⟳');ai.id='vauto';$('v-vid').appendChild(ai);
 }
 function loadVids(cat){
-  var f=$('feed'),names=['For You'].concat(Object.keys(VCATS));
-  if(!$('vcats')){
-    var bar=h('div');bar.id='vcats';
-    names.forEach(function(n){var b=h('button','mini',n);b.onclick=function(){loadVids(n)};bar.appendChild(b)});
-    $('v-vid').appendChild(bar);
-  }
   if(vl&&!cat)return;vl=1;
-  vst={cat:cat||'For You',page:0,busy:false,empty:0};vseen={};
-  f.innerHTML='';f.scrollTop=0;f.appendChild(h('p','sub ldg','Loading videos...'));
-  if(vio)vio.disconnect();
-  vio=new IntersectionObserver(function(en){en.forEach(function(x){
-    var c=x.target,v=c.querySelector('video');
-    if(x.isIntersecting){
-      if(!c._ld){c._ld=1;hydrate(c)}else if(v)v.play().catch(function(){});
-      if(c===f.lastElementChild||c===f.children[f.children.length-3])more();
-    }else{
-      if(v){v.pause();v.removeAttribute('src');v.load();v.remove()}
-      if(c._ld){c._ld=0;if(!c.querySelector('.ph'))c.insertBefore(c._ph,c.firstChild)}
-    }
-  })},{threshold:.6});
-  more();
+  var f=$('feed');f.innerHTML='';f.scrollTop=0;f.appendChild(h('p','sub ldg','Loading videos...'));
+  (vdb?Promise.resolve(vdb):fetch('movies.json').then(function(r){return r.json()})).then(function(d){
+    vdb=d;vbar();vcat=cat||'For You';vq=vlist(vcat);f.innerHTML='';
+    if(!vq.length){f.appendChild(h('p','sub','No videos yet. Add playlist IDs to movies.json.'));return}
+    if(vio)vio.disconnect();
+    vio=new IntersectionObserver(function(en){en.forEach(function(x){
+      var c=x.target;
+      if(x.isIntersecting){
+        if(!c._ld){c._ld=1;vplay(c)}else ytCmd(c,'playVideo');
+        if(c===f.lastElementChild||c===f.children[f.children.length-3])vmore();
+      }else if(c._ld){
+        c._ld=0;c._paused=false;var fr=c.querySelector('iframe');if(fr)fr.remove();
+        if(!c._ph.parentNode)c.insertBefore(c._ph,c.firstChild);
+      }
+    })},{threshold:.6});
+    vmore();
+  }).catch(function(){vl=0;f.innerHTML='';f.appendChild(h('p','sub','Videos are not available right now.'))});
 }
 
 /* ---------- Games ---------- */
@@ -480,9 +513,9 @@ $('in').addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){
   $('enter').onclick=function(){
     if(localStorage.getItem('ik_ok'))return open();
     tierP.then(function(t){
-      if(t===3){mark();return open()}
+      if(t===0){mark();return open()}
       $('enter').style.display='none';$('gdis').style.display='none';
-      $('gdt').textContent='This app needs a one-time download of about '+(t===1?'1.5 GB':'400 MB')+' to run its private AI on your device. It is saved here, so next time it opens instantly. Wi-Fi is best.';
+      $('gdt').textContent='This app needs a one-time download of '+MODELS[t].size+' to run its private AI on your device. It is saved here, so next time it opens instantly. Wi-Fi is best.';
       $('gdl').style.display='block';
     });
   };
@@ -493,9 +526,9 @@ $('in').addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){
   };
 })();
 
-/* ---------- Policy modal (draft, rewritten in the policy step) ---------- */
+/* ---------- Policy modal (draft) ---------- */
 var DOCS={
-Privacy:['INKONG AI runs on your device. We do not save your data on our servers: your chats, saved searches and saved videos stay in your browser, and clearing your browser data deletes them.','We show ads from partner networks. Those networks may use cookies to show and measure ads.'],
+Privacy:['INKONG AI runs on your device. We do not save your data on our servers: your chats, saved searches and saved videos stay in your browser, and clearing your browser data deletes them.','We show ads from partner networks. Those networks may use cookies to show and measure ads. Videos are played from YouTube, which may use its own cookies.'],
 Terms:['Use INKONG AI responsibly and lawfully. The service is provided as is and features may change.','You are responsible for your own data. Clearing your browser storage cannot be undone.'],
 FAQ:['Do I need an account? No.','Is it free? Yes, supported by ads.','Where is my data? Chats and saves stay in your browser. We do not save your data on our servers.','Why does the AI need a download? It runs on your device, so the first visit takes longer.']
 };
