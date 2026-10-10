@@ -81,7 +81,7 @@ nav button i{font-style:normal;font-size:19px}nav button.on{color:var(--ac)}
 #modal{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:60;display:none;align-items:center;justify-content:center;padding:20px}
 #modal.on{display:flex}
 #mb{position:relative;width:100%;max-width:460px;max-height:80vh;overflow-y:auto;background:#161616;border-radius:16px;border:1px solid #222;padding:24px 20px}
-#mb h3{margin:0 0 8px;font-size:16px}#mb h4{margin:14px 0 4px;font-size:13.5px}#mb p{margin:0 0 8px;font-size:13px;line-height:1.6;color:var(--sb)}
+#mb h3{margin:0 0 8px;font-size:16px}#mb h4{margin:16px 0 4px;font-size:13.5px;color:var(--tx)}#mb p{margin:0 0 8px;font-size:13px;line-height:1.6;color:var(--sb)}
 #prog{position:absolute;left:12px;right:12px;bottom:10px;z-index:6;padding:10px 12px;border-radius:12px;background:var(--p);border:1px solid var(--bd);font-size:12.5px;color:var(--sb)}
 .pbar{height:4px;border-radius:2px;background:var(--bd);margin-top:8px;overflow:hidden}.pbar i{display:block;height:100%;width:0;background:var(--ac);transition:width .2s}
 #gate{position:fixed;inset:0;z-index:55;background:radial-gradient(circle at 50% 30%,#14142a,var(--bg) 65%);display:flex;align-items:center;justify-content:center;overflow-y:auto;padding:24px}
@@ -103,6 +103,12 @@ nav button{transition:transform .22s ease,color .22s,text-shadow .22s}nav button
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 .msg.ai details{margin:8px 0}.msg.ai ol{margin:8px 0;padding-left:20px;font-size:13px;color:var(--sb)}.msg.ai summary{cursor:pointer;color:var(--ac)}
 .kin{background:var(--p2);border:1px solid var(--bd);color:var(--tx);border-radius:10px;padding:9px 10px;width:100%;margin:8px 0;font:inherit;font-size:13px}
+.dots{display:inline-flex;gap:6px;align-items:center;height:22px;padding:0 4px}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--ac);display:block;animation:dotdance 1.4s cubic-bezier(.4,0,.2,1) infinite;box-shadow:0 0 8px var(--gl)}
+.dots i:nth-child(2){animation-duration:.9s;animation-delay:.15s}
+.dots i:nth-child(3){animation-duration:1.9s;animation-delay:.3s}
+@keyframes dotdance{0%{transform:translate(0,0) scale(1)}20%{transform:translate(3px,-8px) scale(1.25)}40%{transform:translate(0,0) scale(.85)}60%{transform:translate(-3px,-5px) scale(1.1)}80%{transform:translate(2px,3px) scale(.9)}100%{transform:translate(0,0) scale(1)}}
+@media(prefers-reduced-motion:reduce){.dots i{animation:none}}
 #toast{position:fixed;left:50%;bottom:150px;transform:translateX(-50%);background:#222;border:1px solid var(--bd);padding:10px 16px;border-radius:12px;font-size:13px;z-index:70;opacity:0;pointer-events:none;transition:opacity .2s;max-width:86%;text-align:center}
 #toast.on{opacity:1}
 </style></head><body>
@@ -115,7 +121,7 @@ nav button{transition:transform .22s ease,color .22s,text-shadow .22s}nav button
   <h3>Saved chats</h3><div id="l-chats"></div>
   <h3>Saved searches</h3><div id="l-search"></div>
   <h3>Saved videos</h3><div id="l-vids"></div>
-  <p style="margin-top:22px"><span class="lnk" data-m="Privacy">Privacy</span><span class="lnk" data-m="Terms">Terms</span><span class="lnk" data-m="FAQ">FAQ</span></p>
+  <p style="margin-top:22px"><span class="lnk" data-m="About">About</span><span class="lnk" data-m="Privacy">Privacy</span><span class="lnk" data-m="Terms">Terms</span><span class="lnk" data-m="FAQ">FAQ</span></p>
   <p style="font-size:12px;color:#777">Magnus Crown | Founder &amp; CEO<br>© 2026 INKONG AI</p>
 </aside>
 <main>
@@ -142,7 +148,7 @@ nav button{transition:transform .22s ease,color .22s,text-shadow .22s}nav button
 <div id="gate"><div class="gin">
 <div class="logo3d" id="logo3d" aria-label="INKONG AI"></div>
 <p class="gtxt" id="gdis">INKONG AI runs on your own device. We don't save your data on our servers: your chats and saves stay in this browser. Ads from partner networks may use cookies. By entering you accept the <span class="lnk" data-m="Terms">Terms</span> and <span class="lnk" data-m="Privacy">Privacy Policy</span>.</p>
-<button class="bigbtn" id="enter">ENTER APPLICATION</button>
+<button class="bigbtn" id="enter">ENTER</button>
 <div id="gdl"><p class="gtxt" id="gdt"></p><div id="gbtns"><button class="bigbtn" id="gok">APPROVE</button><button class="mini" id="gno">CANCEL</button></div><div id="gbar"><i id="gpb"></i></div></div>
 </div></div>
 <div id="modal"><div id="mb"></div></div><div id="toast"></div>
@@ -157,9 +163,9 @@ function sv(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 var CFG={SEARX_URL:'',CAPTION_PROXY:''};
 var HOOKS=["Your chats live on your device. Clear your browser and they're gone.","The AI runs on your own phone or laptop, not on our servers.","Ask in any language. INKONG answers in yours.","Free chat, search, tools and games. Ads keep it free.","No account needed. Start typing.","Search the web, then read or translate any result.","Saved chats stay in this browser, nowhere else."];
 var TOOLS={
-fact:{i:'🔎',n:'Fact Check',h:'Paste a transcript to check its claims',s:'Paste a transcript, or attach a .txt file. INKONG checks each claim.',p:'Paste the transcript...'},
-sum:{i:'📝',n:'Video Summarizer',h:'Paste a transcript to get the key points',s:'Paste a transcript, or attach a .txt file. You get the key points.',p:'Paste the transcript...'},
-trans:{i:'🎙️',n:'Video Transcriber',h:'Paste a video link to get the full text',s:'Paste a link to a video with captions to get its text.',p:'Paste the video link...'},
+fact:{i:'🔎',n:'Fact Check',h:'Paste text to check its claims',s:'Paste text or a transcript, or attach a .txt file. INKONG checks each claim.',p:'Paste the text...'},
+sum:{i:'📝',n:'Text Summarizer',h:'Paste text to get the key points',s:'Paste text, or attach a .txt file. You get the key points.',p:'Paste the text...'},
+trans:{i:'🎙️',n:'Audio/Video to Text',h:'Turn audio or video into text',s:'Tap the ⋯ button, attach an audio or video file, then press send. It is turned into text on your device. Copy the text into Fact Check or Text Summarizer.',p:'Attach a file with ⋯, then send...'},
 det:{i:'🕵️',n:'AI Text Detector',h:'Paste text to check if AI wrote it',s:'You get an AI-probability score with reasons.',p:'Paste the text to check...'},
 qr:{i:'🔗',n:'QR Code Generator',h:'Turn a link or text into a QR code',s:'Works on your device. Nothing is uploaded.',p:'Paste a link or text...'},
 pw:{i:'🔐',n:'Password Generator',h:'Make a strong random password',s:'Made on your device with secure random numbers.'}
@@ -320,7 +326,7 @@ function askAI(){
   tierP.then(function(){
     if(tier===0&&!localStorage.getItem('ik_gem')){keyCard();return}
     busy=true;
-    var live=h('div','msg ai','Thinking...');$('thread').appendChild(live);$('v-ai').scrollTop=$('v-ai').scrollHeight;
+    var live=h('div','msg ai');live.innerHTML='<span class="dots"><i></i><i></i><i></i></span>';$('thread').appendChild(live);$('v-ai').scrollTop=$('v-ai').scrollHeight;
     ensure().then(function(gen){
       if(!gen){live.remove();if(tier===0)keyCard();else bubble('ai','The private AI has not been downloaded yet. Send your message again to start it.');return}
       return gen(history(),function(t){live.textContent=t;$('v-ai').scrollTop=$('v-ai').scrollHeight}).then(function(t){live.remove();bubble('ai',t||'...')});
@@ -338,13 +344,81 @@ function askLocal(prompt){
   });
 }
 
+/* ---------- Audio/Video to Text (speech-to-text on the device) ---------- */
+function sttMain(){
+  var pipe=null;
+  self.onmessage=async function(e){
+    var d=e.data;
+    try{
+      if(d.type==='load'){
+        var m=await import(d.lib);
+        pipe=await m.pipeline('automatic-speech-recognition','onnx-community/whisper-tiny',{dtype:'q8',device:'wasm',progress_callback:function(p){if(p.status==='progress')self.postMessage({type:'prog',p:p.progress})}});
+        self.postMessage({type:'ready'});
+      }else if(d.type==='run'){
+        var r=await pipe(d.audio,{chunk_length_s:30,stride_length_s:5,return_timestamps:false});
+        self.postMessage({type:'done',t:(r.text||'').trim()});
+      }
+    }catch(err){self.postMessage({type:'err'})}
+  };
+}
+var STT=null;
+function getSTT(){
+  if(STT)return STT;
+  STT=new Promise(function(res,rej){
+    var w;
+    try{w=new Worker(URL.createObjectURL(new Blob(['('+sttMain.toString()+')()'],{type:'text/javascript'})),{type:'module'})}catch(e){return rej()}
+    w.onmessage=function(e){var d=e.data;if(d.type==='prog')qout('Downloading the speech model (first time only)... '+Math.round(d.p)+'%');else if(d.type==='ready')res(w);else if(d.type==='err')rej()};
+    w.onerror=function(){rej()};
+    w.postMessage({type:'load',lib:URL_T});
+  });
+  STT.catch(function(){STT=null});
+  return STT;
+}
+function decodeAudio(file){
+  return file.arrayBuffer().then(function(buf){
+    var AC=window.AudioContext||window.webkitAudioContext,ctx=new AC();
+    return new Promise(function(res,rej){ctx.decodeAudioData(buf,res,rej)}).then(function(ab){
+      if(ctx.close)ctx.close();
+      if(ab.duration>900)throw 'long';
+      var OC=window.OfflineAudioContext||window.webkitOfflineAudioContext,oc=new OC(1,Math.ceil(ab.duration*16000),16000),src=oc.createBufferSource();
+      src.buffer=ab;src.connect(oc.destination);src.start();
+      return oc.startRendering().then(function(r){return new Float32Array(r.getChannelData(0))});
+    });
+  });
+}
+function transcribeFile(file){
+  if(file.size>60*1024*1024){qout('This file is too big. Try one under 60 MB.');return}
+  qout('Reading the file...');
+  decodeAudio(file).then(function(a){
+    return getSTT().then(function(w){
+      qout('Turning speech into text... this can take a few minutes on older devices.');
+      return new Promise(function(res,rej){
+        w.onmessage=function(e){var d=e.data;if(d.type==='done')res(d.t);else if(d.type==='err')rej()};
+        w.postMessage({type:'run',audio:a},[a.buffer]);
+      });
+    });
+  }).then(function(t){
+    qout(t||'No speech was found in that file.');
+    if(t){
+      var cb=h('button','mini','Copy text');
+      cb.onclick=function(){if(navigator.clipboard)navigator.clipboard.writeText(t).then(function(){toast('Copied. Paste it into Fact Check or Text Summarizer.')})};
+      $('qres').appendChild(cb);
+    }
+  }).catch(function(e){qout(e==='long'?'This is longer than 15 minutes. Try a shorter file.':'Could not turn that file into text. Try an mp3, m4a, wav or mp4 file.')});
+}
+
 /* ---------- Quick tools ---------- */
 var PROMPTS={fact:'List each factual claim in this transcript and rate it TRUE, MISLEADING, FALSE or UNCLEAR with a short reason and a confidence percentage.',sum:'Summarize this text into 3 clean bullet points.',det:'Estimate how likely this text was written by AI. Give a percentage and the reasons.'};
 function qout(x){var v=$('v-qa'),o=$('qres');if(!o){o=h('div','pad');o.id='qres';v.appendChild(o)}o.innerHTML='';var m=h('div','msg ai',x);m.style.maxWidth='100%';o.appendChild(m);v.scrollTop=v.scrollHeight}
 function runTool(id,text,f){
+  if(id==='trans'){
+    if(f&&f.file&&(/^(audio|video)\//.test(f.file.type)||/\.(mp3|wav|m4a|mp4|webm|ogg|mov|aac|3gp|opus)$/i.test(f.name)))transcribeFile(f.file);
+    else toast('Tap ⋯ and attach an audio or video file, then send.');
+    return;
+  }
   var isUrl=/^https?:\/\/\S+$/.test(text),body;
   if(isUrl){
-    if(!CFG.CAPTION_PROXY){toast('Paste the transcript for now. Link captions are not available yet.');return}
+    if(!CFG.CAPTION_PROXY){toast('Link transcription is not available yet. Paste the text instead.');return}
     qout('Getting captions...');
     body=fetch(CFG.CAPTION_PROXY+'?url='+encodeURIComponent(text)).then(function(r){return r.text().then(function(t){if(!r.ok)throw t;return t})});
   }else body=Promise.resolve(f&&f.text?f.text:text);
@@ -514,7 +588,7 @@ function renderLists(){
 
 /* ---------- Attachments ---------- */
 function setAtt(f){
-  if(!f)return;att={name:f.name||'attachment',url:null,text:null};
+  if(!f)return;att={name:f.name||'attachment',url:null,text:null,file:f};
   var th=$('cth'),r=new FileReader();th.style.display='none';
   if(f.type.indexOf('image/')===0){r.onload=function(){att.url=r.result;th.src=r.result;th.style.display='block'};r.readAsDataURL(f)}
   else if(f.type.indexOf('text/')===0||/\.txt$/i.test(f.name)){r.onload=function(){att.text=r.result};r.readAsText(f)}
@@ -525,6 +599,24 @@ $('cx').onclick=clrAtt;
 $('t-cam').onclick=function(){$('p-cam').click()};$('t-img').onclick=function(){$('p-img').click()};$('t-file').onclick=function(){$('p-file').click()};
 ['p-img','p-cam','p-file'].forEach(function(id){$(id).onchange=function(e){setAtt(e.target.files[0]);e.target.value=''}});
 
+/* ---------- QR code (made on the device) ---------- */
+function loadScript(u){return new Promise(function(r,j){var e=document.createElement('script');e.src=u;e.onload=r;e.onerror=j;document.head.appendChild(e)})}
+function makeQR(text){
+  if(!text){toast('Paste a link or text first.');return}
+  function draw(){
+    try{
+      var q=window.qrcode(0,'M');q.addData(text);q.make();var src=q.createDataURL(8,2);
+      var v=$('v-qa'),o=$('qres');if(!o){o=h('div','pad');o.id='qres';v.appendChild(o)}o.innerHTML='';
+      var w=h('div','center');w.style.minHeight='0';
+      var im=document.createElement('img');im.src=src;im.alt='QR code';im.style.cssText='width:240px;max-width:100%;background:#fff;border-radius:12px;padding:8px;margin-bottom:12px';
+      var a=h('a','mini','Download');a.href=src;a.download='qr.png';
+      w.appendChild(im);w.appendChild(a);o.appendChild(w);v.scrollTop=v.scrollHeight;
+    }catch(e){toast('That text is too long for a QR code.')}
+  }
+  if(window.qrcode)return draw();
+  loadScript('https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js').then(draw).catch(function(){toast('Could not load the QR tool. Check your connection.')});
+}
+
 /* ---------- Send ---------- */
 function send(){
   var text=$('in').value.trim();if(!text&&!att)return;
@@ -532,7 +624,7 @@ function send(){
   var f=att;$('in').value='';$('in').style.height='auto';clrAtt();
   if(tab==='search'){if(text)doSearch(text);return}
   if(tab==='qa'&&tool){
-    if(tool==='qr'){toast('QR generator is added in the next build step.');return}
+    if(tool==='qr'){makeQR(text);return}
     runTool(tool,text,f);return;
   }
   if(/^(AIza|AQ\.)[\w.-]{20,}$/.test(text)){try{localStorage.setItem('ik_gem',text)}catch(e){}ENG.p=null;toast('Key saved on this device only. Ask me anything.');return}
@@ -564,15 +656,91 @@ $('in').addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){
   };
 })();
 
-/* ---------- Policy modal (draft) ---------- */
+/* ---------- About, Privacy, Terms, FAQ ---------- */
+var CONTACT_EMAIL=''; /* put your support email here, e.g. 'hello@yourdomain.com' */
+var UPDATED='October 2026';
 var DOCS={
-Privacy:['INKONG AI runs on your device. We do not save your data on our servers: your chats, saved searches and saved videos stay in your browser, and clearing your browser data deletes them.','We show ads from partner networks. Those networks may use cookies to show and measure ads. Videos are played from YouTube, which may use its own cookies.'],
-Terms:['Use INKONG AI responsibly and lawfully. The service is provided as is and features may change.','You are responsible for your own data. Clearing your browser storage cannot be undone.'],
-FAQ:['Do I need an account? No.','Is it free? Yes, supported by ads.','Where is my data? Chats and saves stay in your browser. We do not save your data on our servers.','Why does the AI need a download? It runs on your device, so the first visit takes longer.']
+About:[
+"INKONG AI is an all-in-one hub. Private AI chat, web search, audio and video to text, free videos and games, all in one place.",
+"#Built on privacy",
+"The AI runs inside your own browser, on your own phone or laptop. What you type stays on your device. There are no accounts, and we do not sell your data.",
+"#Why we built it",
+"Most AI tools ask you to sign up, send everything you type to a server and pay or be tracked. INKONG AI is built differently: open it, enter, and start. Fast, free and private by design.",
+"#Who is behind it",
+"INKONG AI was founded by Magnus Crown, Founder & CEO. Designed for people everywhere.",
+"#What is next",
+"We are improving the AI, adding more tools and games, and planning a mobile app."
+],
+Privacy:[
+"Last updated: "+UPDATED,
+"#The short version",
+"We do not sell your data. We do not save your data on our servers. INKONG AI runs in your browser, and there are no accounts.",
+"#What stays on your device",
+"Your chats, saved searches and saved videos are stored only in your browser. The AI runs on your device, so what you type to it is not sent to us. When you turn audio or video into text, the file is processed on your device and is not uploaded. Clearing your browser data deletes all of it, and we cannot recover it.",
+"#What we do not collect",
+"We do not ask for your name, email or any account. We do not collect the content of your chats or the files you attach.",
+"#Third parties you may connect to",
+"Some features work through other services, and they have their own privacy policies:",
+"Search: the words you search for are sent to Wikipedia to get results.",
+"Videos: videos are played by YouTube, which may collect information according to its own policy.",
+"AI download: the first time you use the AI, its files are downloaded from public content networks, which see basic connection details such as your IP address.",
+"Your own Gemini key (optional): if you add one, your messages are sent from your browser to Google, and Google's terms apply. Your key is stored only on your device and we never see it.",
+"Hosting: the service that hosts this site may keep standard technical logs, such as IP address and time of visit, for security.",
+"#Ads and cookies",
+"We may show ads from partner advertising networks. These partners may use cookies to show and measure ads. We do not give them your chats or anything you type. You can control cookies in your browser settings.",
+"#Your choices",
+"You can delete your chats and saves at any time by clearing this site's data in your browser. You can skip the optional Gemini key and use only the on-device AI.",
+"#Changes",
+"If we change this policy, we will update the date above."
+],
+Terms:[
+"Last updated: "+UPDATED,
+"#Using INKONG AI",
+"By entering INKONG AI you agree to these terms. Please use the service lawfully and responsibly. Do not use it to harm others, break the law, or disrupt the service.",
+"#AI can make mistakes",
+"AI answers, fact checks, summaries, translations and AI-text detection are automatic estimates and can be wrong. Do not rely on them for medical, legal, financial or safety decisions. Always double-check important information.",
+"#Your content",
+"You are responsible for what you type and attach. Your content stays yours, and it stays on your device.",
+"#Third-party content",
+"Videos, games, search results and other outside content belong to their owners and are subject to their own terms. We do not control them.",
+"#Your data on your device",
+"Your chats and saves live in your browser. Clearing your browser data or changing devices will remove them, and this cannot be undone.",
+"#Availability",
+"The service is provided as is, without warranties. Features can change, pause or end at any time. To the extent the law allows, INKONG AI is not liable for losses from using the service.",
+"#Our brand",
+"The INKONG AI name, logo and design belong to INKONG AI and may not be copied or used without permission.",
+"#Governing law",
+"These terms are governed by the laws.",
+"#Changes",
+"We may update these terms. Continuing to use INKONG AI after an update means you accept the new version."
+],
+FAQ:[
+"#What is INKONG AI?",
+"An all-in-one hub with private AI chat, web search, audio and video to text, free videos and games in one place.",
+"#Do I need an account?",
+"No. Open the app, tap Enter and start. There is no sign-up.",
+"#Is it free?",
+"Yes. INKONG AI is free to use.",
+"#How do you manage my data?",
+"We do not sell it and we do not save it on our servers. Your chats, searches and saves stay in your own browser.",
+"#Can you see what I type?",
+"No. The AI runs in your browser on your device, so we never see your chats. Two exceptions: search words are sent to Wikipedia to get results, and if you choose to add your own Gemini key, your messages go to Google.",
+"#Why does the AI download when I first enter?",
+"The AI runs on your device instead of our servers. It downloads once, is saved in your browser, and opens much faster next time. Wi-Fi is best.",
+"#How do I delete my chats?",
+"Open the menu to see your saved chats. To remove everything, clear this site's data in your browser settings.",
+"#Is the AI always right?",
+"No. AI can make mistakes, so double-check anything important.",
+"#Which devices does it work on?",
+"Most modern phones and laptops. Weaker devices automatically use a lighter AI so the app stays smooth, and very old devices can use their own free Gemini key.",
+"#Do you have a mobile app?",
+"Not yet. We are planning one for the future. For now, use INKONG AI in your browser."
+]
 };
 document.querySelectorAll('[data-m]').forEach(function(a){a.onclick=function(){
-  var m=$('mb');m.innerHTML='';m.appendChild(h('h3',null,a.dataset.m));
-  DOCS[a.dataset.m].forEach(function(p){m.appendChild(h('p',null,p))});
+  var m=$('mb');m.innerHTML='';m.appendChild(h('h3',null,a.dataset.m==='FAQ'?'Frequently asked questions':a.dataset.m==='About'?'About INKONG AI':a.dataset.m==='Terms'?'Terms of Use':'Privacy Policy'));
+  DOCS[a.dataset.m].forEach(function(p){m.appendChild(p.charAt(0)==='#'?h('h4',null,p.slice(1)):h('p',null,p))});
+  if(CONTACT_EMAIL)m.appendChild(h('p',null,'Contact: '+CONTACT_EMAIL));
   var x=h('button','mini','Close');x.onclick=function(){$('modal').classList.remove('on')};m.appendChild(x);
   $('modal').classList.add('on');closeAll();
 }});
