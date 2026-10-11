@@ -8,7 +8,7 @@ function sv(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 var CFG={SEARX_URL:'',CAPTION_PROXY:''};
 var HOOKS=["Your chats live on your device. Clear your browser and they're gone.","The AI runs on your own phone or laptop, not on our servers.","Ask in any language. INKONG answers in yours.","Free chat, search, tools and games. Ads keep it free.","No account needed. Start typing.","Search the web, then read or translate any result.","Saved chats stay in this browser, nowhere else."];
 var TOOLS={
-fact:{i:'🔎',n:'Fact Check',h:'Check facts in text, audio or video',s:'Paste text, or tap ⋯ and attach an audio or video file. INKONG turns speech into text behind the scenes and shows only the score, what is true and what is false.',p:'Paste text, or attach a file with ⋯...'},
+fact:{i:'🔎',n:'Fact Check',h:'Check facts in text, audio or video',s:'Paste text, or tap ⋯ and attach an audio or video file.',p:'Paste text, or attach a file with ⋯...'},
 trans:{i:'🎙️',n:'Audio/Video to Text',h:'Turn audio or video into text',s:'Tap ⋯, attach an audio or video file, then press send. The text is made on your device and nothing is uploaded.',p:'Attach a file with ⋯, then send...'},
 det:{i:'🕵️',n:'AI Text Detector',h:'Paste text to check if AI wrote it',s:'You get an AI-probability score with reasons.',p:'Paste the text to check...'},
 qr:{i:'🔗',n:'QR Code Generator',h:'Turn a link or text into a QR code',s:'Works on your device. Nothing is uploaded.',p:'Paste a link or text...'},
