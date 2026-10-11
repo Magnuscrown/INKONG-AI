@@ -109,3 +109,12 @@ nav button{transition:transform .22s ease,color .22s,text-shadow .22s}nav button
 #toast{position:fixed;left:50%;bottom:150px;transform:translateX(-50%);background:#222;border:1px solid var(--bd);padding:10px 16px;border-radius:12px;font-size:13px;z-index:70;opacity:0;pointer-events:none;transition:opacity .2s;max-width:86%;text-align:center}
 #toast.on{opacity:1}
 .lnk{text-decoration:underline}
+
+#ftray{display:none;flex:none;gap:8px;overflow-x:auto;padding:8px 12px 0;border-top:1px solid var(--bd);background:rgba(5,5,5,.95)}
+#ftray.on{display:flex}
+#ftray.off{display:none!important}
+.fchip{display:flex;align-items:center;gap:6px;flex:none;max-width:210px;padding:5px 6px 5px 8px;border-radius:12px;background:var(--p);border:1px solid var(--bd);font-size:12px;color:var(--sb)}
+.fchip img{width:26px;height:26px;border-radius:6px;object-fit:cover}
+.fchip b{font-size:16px;font-weight:400}
+.fchip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px}
+.fchip button{border:0;background:none;color:var(--sb);font-size:13px;padding:2px 4px}
