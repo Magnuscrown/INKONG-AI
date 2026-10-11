@@ -25,9 +25,10 @@
   <section class="view" id="v-games"><div id="gh"><div class="center" style="min-height:0;padding-bottom:0"><p class="hook">Play free games</p></div><div class="grid" id="gg"></div></div><div class="games" id="gf"><div class="gbar"><button class="back" id="gback">← All games</button><b id="gt"></b><button class="mini" id="gfs" aria-label="Fullscreen">⛶</button></div><div class="gstage"><div class="gload" id="gl"><div class="spin"></div></div><iframe id="fr" title="Game" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock" allow="fullscreen; autoplay; gamepad" referrerpolicy="strict-origin-when-cross-origin"></iframe></div></div></section>
 <div id="prog" style="display:none"><span id="pt"></span><div class="pbar"><i id="pb"></i></div></div>
 </main>
+<div id="ftray"></div>
 <div id="bar">
   <button class="rb" id="more" aria-label="More options">⋯</button>
-  <div id="wrap"><div id="chip"><img id="cth" alt="" style="display:none"><span id="cn"></span><button id="cx" aria-label="Remove">✕</button></div><textarea id="in" rows="1" placeholder="Ask INKONG..."></textarea></div>
+  <div id="wrap"><textarea id="in" rows="1" placeholder="Ask INKONG..."></textarea></div>
   <button id="send" aria-label="Send">➔</button>
 </div>
 <nav id="nav">
@@ -37,7 +38,7 @@
   <div class="tray"><div id="t-cam"><i>📷</i>Camera</div><div id="t-img"><i>🖼️</i>Image</div><div id="t-file"><i>📁</i>Files</div></div>
   <div id="sb"></div>
 </div>
-<input type="file" id="p-img" accept="image/*" hidden><input type="file" id="p-cam" accept="image/*" capture="environment" hidden><input type="file" id="p-file" hidden>
+<input type="file" id="p-img" accept="image/*" multiple hidden><input type="file" id="p-cam" accept="image/*" capture="environment" hidden><input type="file" id="p-file" multiple hidden>
 <div id="gate"><div class="gin">
 <div class="logo3d" id="logo3d" aria-label="INKONG AI"></div>
 <p class="gtxt" id="gdis">INKONG AI runs on your own device. We don't save your data on our servers: your chats and saves stay in this browser. Ads from partner networks may use cookies. By entering you accept the <a class="lnk" href="terms.html" target="_blank" rel="noopener">Terms</a> and <a class="lnk" href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</p>
